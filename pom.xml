@@ -59,11 +59,16 @@
             <scope>test</scope>
         </dependency>
 
-        <!-- <dependency>
+        <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots-spring-boot-starter</artifactId>
             <version>6.8.0</version>
-        </dependency> -->
+        </dependency>
+        <dependency>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.1</version>
+        </dependency> <!-- necessary to resolve 'telegrambots-spring-boot-starter' compatibility issues -->
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
