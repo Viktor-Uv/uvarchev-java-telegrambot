@@ -1,6 +1,9 @@
 package com.uvarchev.javatelebot.bot;
 
-import com.uvarchev.javatelebot.enums.BotCommands;
+import com.uvarchev.javatelebot.command.StartCommand;
+import com.uvarchev.javatelebot.command.StopCommand;
+import com.uvarchev.javatelebot.service.TelebotService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -9,6 +12,9 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
 public class Telebot extends TelegramLongPollingBot {
+
+    @Autowired
+    private TelebotService botService;
 
     private final TelebotConfig config;
 
@@ -22,63 +28,41 @@ public class Telebot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             String messageText = update.getMessage().getText();
 
-            // Get chatId and user's name
-            Long chatId = update.getMessage().getChatId();
-            String firstName = update.getMessage().getChat().getFirstName();
-
-            // Check if the received message starts with a command
+            // Check if message starts with some command
             if (messageText.startsWith("/")) {
-                // Extract input command
-                String commandString = messageText.substring(1);
+                // Get chatId and user's data (user for replies)
+                Long chatId = update.getMessage().getChatId();
+                Long userId = update.getMessage().getFrom().getId();
+                String firstName = update.getMessage().getChat().getFirstName();
 
-                // Validate input command
-                if (isRecognisedCommand(commandString, chatId)) {
-                    // Convert commandString to enum constant
-                    BotCommands command = BotCommands.valueOf(commandString.toUpperCase());
+                // Extract input command (without "/")
+                String commandString = messageText.substring(1).toUpperCase();
 
-                    // Process command
-                    switch (command) {
-                        case START -> startCommandReceived(chatId, firstName);
-                        case STOP -> stopCommandReceived(chatId, firstName);
+                // Process input command and generate answer
+                String answer = switch (commandString) {
+                    case "START" -> {
+                        StartCommand startCommand = new StartCommand();
+                        yield botService.startCommandReceived(startCommand, userId, firstName);
                     }
-                } else {
-                    // Reply that command is not recognised
-                    unrecognisedCommandReceived(chatId);
-                }
+                    case "STOP" -> {
+                        StopCommand stopCommand = new StopCommand();
+                        yield botService.stopCommandReceived(stopCommand, userId, firstName);
+                    }
+                    default ->
+                        // Command is not recognised
+                        botService.unrecognisedCommandReceived();
+                };
 
-
+                // Reply with generated answer:
+                sendMessage(chatId, answer);
             }
         }
     }
 
-    private void startCommandReceived(long chatId, String firstName) {
-        String answer = "Hi, " + firstName + ", nice to meet you!";
-        sendMessage(chatId, answer);
-    }
-
-    private void stopCommandReceived(long chatId, String firstName) {
-        String answer = "Bye, " + firstName + ", till next time!";
-        sendMessage(chatId, answer);
-    }
-
-    private void unrecognisedCommandReceived(long chatId) {
-        sendMessage(chatId, "Sorry, command was not recognised");
-    }
-
-    private boolean isRecognisedCommand(String commandString, long chatId) {
-        try {
-            BotCommands.valueOf(commandString.toUpperCase());
-            return true;
-        } catch (IllegalArgumentException e) {
-            System.out.println("Unrecognised command from chat ID " + chatId + ". " + e.getMessage());
-            return false;
-        }
-    }
-
-    private void sendMessage(long chatId, String textToSend) {
+    public void sendMessage(long chatId, String answer) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText(textToSend);
+        sendMessage.setText(answer);
 
         try {
             execute(sendMessage);

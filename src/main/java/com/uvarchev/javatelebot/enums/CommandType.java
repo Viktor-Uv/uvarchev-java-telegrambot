@@ -1,7 +1,7 @@
 package com.uvarchev.javatelebot.enums;
 
 // Valid commands
-public enum BotCommands {
+public enum CommandType {
     START,
     STOP
 }
