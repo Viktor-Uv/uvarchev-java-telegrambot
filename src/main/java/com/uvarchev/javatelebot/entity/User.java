@@ -17,7 +17,7 @@ public class User {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private Long telegramId; // Use Telegram ID as user's primary identifier
 
-    @Column(name = "user_is_active", columnDefinition = "TINYINT(1) DEFAULT 1", nullable = false)
+    @Column(name = "user_is_active", columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isActive; // Defined by "/start" and "/stop" commands
 
     @OneToMany(
@@ -32,5 +32,6 @@ public class User {
 
     public User(Long telegramId) {
         this.telegramId = telegramId;
+        this.isActive = true;
     }
 }

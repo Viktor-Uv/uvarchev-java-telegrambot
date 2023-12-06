@@ -30,12 +30,10 @@ public class Telebot extends TelegramLongPollingBot {
 
             // Check if message text starts with some command
             if (update.getMessage().getText().startsWith("/")) {
-                // Get chatId and user's data (used for replies)
-                Long chatId = update.getMessage().getChatId();
 
                 // Generate answer and reply:
                 String answer = getAnswer(update);
-                sendMessage(chatId, answer);
+                sendMessage(update, answer);
             }
         }
     }
@@ -59,16 +57,16 @@ public class Telebot extends TelegramLongPollingBot {
                 yield botService.processCommand(command);
             }
             default -> {
-                UnrecognisedCommand command = new UnrecognisedCommand();
+                UnrecognisedCommand command = new UnrecognisedCommand(firstName);
                 yield botService.processCommand(command);
             }
         };
     }
 
-    public void sendMessage(long chatId, String answer) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.setChatId(String.valueOf(chatId));
-        sendMessage.setText(answer);
+    public void sendMessage(Update update, String answer) {
+        String chatId = String.valueOf(update.getMessage().getChatId());
+        SendMessage sendMessage = new SendMessage(chatId, answer);
+        sendMessage.setReplyToMessageId(update.getMessage().getMessageId());
 
         try {
             execute(sendMessage);
