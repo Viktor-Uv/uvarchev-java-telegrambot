@@ -2,6 +2,7 @@ package com.uvarchev.javatelebot.bot;
 
 import com.uvarchev.javatelebot.command.StartCommand;
 import com.uvarchev.javatelebot.command.StopCommand;
+import com.uvarchev.javatelebot.command.UnrecognisedCommand;
 import com.uvarchev.javatelebot.service.TelebotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,37 +27,42 @@ public class Telebot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // Check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            String messageText = update.getMessage().getText();
 
-            // Check if message starts with some command
-            if (messageText.startsWith("/")) {
-                // Get chatId and user's data (user for replies)
+            // Check if message text starts with some command
+            if (update.getMessage().getText().startsWith("/")) {
+                // Get chatId and user's data (used for replies)
                 Long chatId = update.getMessage().getChatId();
-                Long userId = update.getMessage().getFrom().getId();
-                String firstName = update.getMessage().getChat().getFirstName();
 
-                // Extract input command (without "/")
-                String commandString = messageText.substring(1).toUpperCase();
-
-                // Process input command and generate answer
-                String answer = switch (commandString) {
-                    case "START" -> {
-                        StartCommand startCommand = new StartCommand();
-                        yield botService.startCommandReceived(startCommand, userId, firstName);
-                    }
-                    case "STOP" -> {
-                        StopCommand stopCommand = new StopCommand();
-                        yield botService.stopCommandReceived(stopCommand, userId, firstName);
-                    }
-                    default ->
-                        // Command is not recognised
-                        botService.unrecognisedCommandReceived();
-                };
-
-                // Reply with generated answer:
+                // Generate answer and reply:
+                String answer = getAnswer(update);
                 sendMessage(chatId, answer);
             }
         }
+    }
+
+    private String getAnswer(Update update) {
+        // Get user details
+        Long userId = update.getMessage().getFrom().getId();
+        String firstName = update.getMessage().getChat().getFirstName();
+
+        // Extract input command and capitalise (command without "/")
+        String commandString = update.getMessage().getText().substring(1).toUpperCase();
+
+        // Process input command and generate answer
+        return switch (commandString) {
+            case "START" -> {
+                StartCommand command = new StartCommand(userId, firstName);
+                yield botService.processCommand(command);
+            }
+            case "STOP" -> {
+                StopCommand command = new StopCommand(userId, firstName);
+                yield botService.processCommand(command);
+            }
+            default -> {
+                UnrecognisedCommand command = new UnrecognisedCommand();
+                yield botService.processCommand(command);
+            }
+        };
     }
 
     public void sendMessage(long chatId, String answer) {

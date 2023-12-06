@@ -2,21 +2,21 @@ package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.command.StartCommand;
 import com.uvarchev.javatelebot.command.StopCommand;
+import com.uvarchev.javatelebot.command.UnrecognisedCommand;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TelebotService {
 
-    public String unrecognisedCommandReceived() {
+    public String processCommand(UnrecognisedCommand command) {
         return "Sorry, command was not recognised";
     }
 
-    public String startCommandReceived(StartCommand command, Long userId, String firstName) {
-
-        return "Hi, " + firstName + ", nice to meet you!";
+    public String processCommand(StartCommand command) {
+        return "Hi, " + command.getFirstName() + ", nice to meet you!";
     }
 
-    public String stopCommandReceived(StopCommand command, Long userId, String firstName){
-        return "Bye, " + firstName + ", till next time!";
+    public String processCommand(StopCommand command) {
+        return "Bye, " + command.getFirstName() + ", till next time!";
     }
 }
