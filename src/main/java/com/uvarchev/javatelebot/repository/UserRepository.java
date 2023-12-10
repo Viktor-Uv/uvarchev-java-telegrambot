@@ -1,5 +1,6 @@
 package com.uvarchev.javatelebot.repository;
 
+import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

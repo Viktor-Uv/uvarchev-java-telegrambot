@@ -1,12 +1,12 @@
 package com.uvarchev.javatelebot.enums;
 
-public enum Services {
+public enum ServiceType {
     NEWS("category"),
     WEATHER("location");
 
     private final String parameter;
 
-    Services(String parameter) {
+    ServiceType(String parameter) {
         this.parameter = parameter;
     }
 

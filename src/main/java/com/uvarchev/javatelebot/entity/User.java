@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -28,10 +29,15 @@ public class User {
                     CascadeType.MERGE
             } // update user's subscriptions
     )
-    private Set<Subscription> subscriptions; // user's subscriptions
+    private Set<Subscription> subscriptions = new HashSet<>(); // user's subscriptions
 
     public User(Long telegramId) {
         this.telegramId = telegramId;
         this.isActive = true;
+        this.subscriptions = null;
+    }
+
+    public void addSubscription(Subscription subscription) {
+        subscriptions.add(subscription);
     }
 }
