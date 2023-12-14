@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -42,19 +41,19 @@ public class Subscription {
     )
     private Set<Parameter> parameters = new HashSet<>(); // subscription options
 
-    @Column(name = "sub_is_active", columnDefinition = "TINYINT(1)", nullable = false)
+    @Column(name = "is_active", columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isActive;
 
     @Column(name = "last_read_id", nullable = false)
-    private String lastReadId; // most recent update that bot sent to subscriber
+    private ZonedDateTime lastReadId; // most recent update that bot sent to subscriber
 
     public Subscription(
             User user,
             ServiceType service
     ) {
         this.isActive = true;
-        // Save current time in ISO-8601 format (ex. 2011-12-03T10:15:30+01:00):
-        this.lastReadId = LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME);
+        // Save current time in ISO-8601 format (ex. 2011-12-03T10:15:30Z):
+        this.lastReadId = ZonedDateTime.now();
         this.user = user;
         this.service = service;
     }

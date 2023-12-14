@@ -152,7 +152,7 @@ public class TelebotService {
         StringBuilder response = new StringBuilder();
 
         subscriptionRepository
-                .findByUserIdAndActive(command.getUserId())
+                .findByUserIdAndActiveIsTrue(command.getUserId())
                 .forEach(
                         subscription -> response.append("\n").append(subscription)
                 );
