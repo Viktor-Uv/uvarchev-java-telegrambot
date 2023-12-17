@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 public class TelebotService {
 
     @Autowired
@@ -83,7 +84,6 @@ public class TelebotService {
 
     // '/addSub <service>'
     // Add subscription for user
-    @Transactional
     public String processCommand(AddSubCommand command) {
         // Check proper usage for Weather service
         if (command.getServiceType().equals(ServiceType.WEATHER)
@@ -147,7 +147,6 @@ public class TelebotService {
 
     // '/listSub'
     // Lists all active subscriptions
-    @Transactional
     public String processCommand(ListSubCommand command) {
         StringBuilder response = new StringBuilder();
 

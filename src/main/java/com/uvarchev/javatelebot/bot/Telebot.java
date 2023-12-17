@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.bot;
 
 import com.uvarchev.javatelebot.command.*;
+import com.uvarchev.javatelebot.repository.UserRepository;
 import com.uvarchev.javatelebot.service.ApiClient;
 import com.uvarchev.javatelebot.service.News;
 import com.uvarchev.javatelebot.entity.Subscription;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
@@ -33,6 +35,9 @@ public class Telebot extends TelegramLongPollingBot {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final TelebotConfig config;
 
@@ -129,6 +134,12 @@ public class Telebot extends TelegramLongPollingBot {
 
         try {
             execute(sendMessage);
+        } catch (TelegramApiRequestException e) {
+            // Handle case when user has stopped & blocked the bot
+            if (e.getErrorCode().equals(403)) {
+                // Set user inactive
+                userRepository.deactivateById(Long.valueOf(address));
+            }
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }
