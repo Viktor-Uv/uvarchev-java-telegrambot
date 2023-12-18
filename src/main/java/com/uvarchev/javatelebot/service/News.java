@@ -26,10 +26,9 @@ public class News {
 
     @Override
     public String toString() {
-        //      Instant view url:
-        return "https://t.me/iv?url=" + url + "&rhash=133d3fc26c9f3f" + "\n" +
-                title + "\n\n" +
+        return title + "\n\n" +
                 summary + "\n\n" +
+                "https://t.me/iv?url=" + url + "&rhash=133d3fc26c9f3f" + "\n" + // instant view url
                 "Published: " + publishedAt;
     }
 }

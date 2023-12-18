@@ -4,7 +4,10 @@ package com.uvarchev.javatelebot.enums;
 public enum CommandType {
     START,
     STOP,
-    ADDSUB,
-    LISTSUB,
-    REMOVESUBID
+    SUBSCRIBE,
+    UNSUBSCRIBE,
+    LIST,
+
+    // Special option, it is used if none of the above commands were received
+    UNRECOGNISED
 }

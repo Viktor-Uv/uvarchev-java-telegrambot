@@ -8,7 +8,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
@@ -26,26 +25,10 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     @Query(
             value = "UPDATE Subscription s " +
                     " SET s.isActive = false " +
-                    " WHERE s.id = :id"
+                    " WHERE s.id = :subId " +
+                    " AND s.user.telegramId = :userId"
     )
-    int deactivateById(Long id);
-
-    @Query(
-            value = "SELECT s " +
-                    " FROM Subscription s " +
-                    " WHERE s.isActive = true"
-    )
-    Iterable<Subscription> findByActiveIsTrue();
-
-    @Query(
-            value = "SELECT MIN(s.lastReadId) " +
-                    " FROM Subscription s " +
-                    " INNER JOIN User u " +
-                    " ON s.user.telegramId = u.telegramId" +
-                    " AND u.isActive = true" +
-                    " WHERE s.isActive = true"
-    )
-    Optional<Subscription> findMinLastReadIdFromAllActiveSubscriptions();
+    int deactivateById(Long subId, Long userId);
 
     @Query(
             value = "SELECT s " +
