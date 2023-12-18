@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.chrono.ChronoZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,10 +20,6 @@ public class PeriodicTask {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
-
-    private final DateTimeFormatter customFormatter = DateTimeFormatter
-            .ofPattern("yyyy-MM-dd HH:mm:ss O")
-            .withZone(ZoneId.of("UTC"));
 
     private final Telebot telebot;
 
@@ -41,8 +36,7 @@ public class PeriodicTask {
         List<Subscription> subscriptions = subscriptionRepository.findAllActiveSubscriptions();
         if (subscriptions.isEmpty()) {
             log.info(
-                    ZonedDateTime.now().format(customFormatter) +
-                            ": Scheduled task completed, no active subscriptions for any active user found"
+                    "Scheduled task completed, no active subscriptions for any active user found"
             );
             return;
         }
@@ -62,8 +56,7 @@ public class PeriodicTask {
         // If no news was returned
         if (newsList.isEmpty()) {
             log.info(
-                    ZonedDateTime.now().format(customFormatter) +
-                            ": Scheduled task completed, no new articles were found"
+                    "Scheduled task completed, no new articles were found"
             );
 
             // Update last read time
@@ -99,15 +92,18 @@ public class PeriodicTask {
                                     )
                             );
 
-                    // Update last read time
-                    sub.setLastReadId(ZonedDateTime.now());
-                    subscriptionRepository.save(sub);
+                    // If user has blocked the bot, he will become inactive in sendMessage() method,
+                    // this is being checked here
+                    if (sub.getUser().isActive()) {
+                        // If User is still active - update his subscription's last read time
+                        sub.setLastReadId(ZonedDateTime.now());
+                        subscriptionRepository.save(sub);
+                    }
                 }
         );
 
         log.info(
-                ZonedDateTime.now().format(customFormatter) +
-                        ": Scheduled task completed, new articles were successfully sent to subscribers"
+                "Scheduled task completed, new articles were successfully sent to subscribers"
         );
     }
 }
