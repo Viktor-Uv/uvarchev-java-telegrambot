@@ -26,7 +26,8 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
             value = "UPDATE Subscription s " +
                     " SET s.isActive = false " +
                     " WHERE s.id = :subId " +
-                    " AND s.user.telegramId = :userId"
+                    " AND s.user.telegramId = :userId " +
+                    " AND s.isActive = true"
     )
     int deactivateById(Long subId, Long userId);
 

@@ -3,6 +3,7 @@ package com.uvarchev.javatelebot.command;
 import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
+import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -35,25 +36,27 @@ public class StartCommand implements Command {
     }
 
     private String generateReply(Long userId, String firstName) {
-        return userRepository
-                // Try to get user from repository
+        String reply;
+
+        // Try to get user from repository
+        User user = userRepository
                 .findById(userId)
-                .map(
-                        // if user was found - set as active and save back to repo
-                        oldUser -> {
-                            oldUser.setActive(true);
-                            userRepository.save(oldUser);
-                            return "Hi, " + firstName + ", nice to see you again!";
-                        }
-                )
-                .orElseGet(
-                        // otherwise - create new user and save to repo
-                        () -> {
-                            userRepository.save(
-                                    new User(userId)
-                            );
-                            return "Hi, " + firstName + ", nice to meet you!";
-                        }
-                );
+                .orElse(null);
+
+        // Generate a reply based on whether the user was found or not
+        // If user exists - set as active again and increase UserRole to USER
+        // Otherwise - create new user
+        if (user != null) {
+            reply = "Hi, " + firstName + ", nice to see you again!";
+            user.setActive(true);
+            user.setUserRole(UserRole.USER);
+        } else {
+            reply = "Hi, " + firstName + ", nice to meet you!";
+            user = new User(userId);
+        }
+
+        // Save user and return reply
+        userRepository.save(user);
+        return reply;
     }
 }

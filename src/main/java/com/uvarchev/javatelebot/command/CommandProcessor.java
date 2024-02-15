@@ -1,7 +1,10 @@
 package com.uvarchev.javatelebot.command;
 
 import com.uvarchev.javatelebot.bot.Telebot;
+import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
+import com.uvarchev.javatelebot.enums.UserRole;
+import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -13,6 +16,10 @@ import java.util.stream.Collectors;
 
 @Component
 public class CommandProcessor {
+
+    @Autowired
+    private UserRepository userRepository;
+
     private final Map<CommandType, Command> commandMap;
 
     @Autowired
@@ -31,17 +38,6 @@ public class CommandProcessor {
                 );
     }
 
-    private CommandType identifyCommand(String text) {
-        return switch (text) {
-            case "/START" -> CommandType.START;
-            case "/STOP" -> CommandType.STOP;
-            case "/SUBSCRIBE" -> CommandType.SUBSCRIBE;
-            case "/UNSUBSCRIBE" -> CommandType.UNSUBSCRIBE;
-            case "/LIST" -> CommandType.LIST;
-            default -> CommandType.UNRECOGNISED;
-        };
-    }
-
     public void processCommand(Update update, Telebot telebot) {
         // Extract input text, capitalise it, and get first word
         String messageText = update.getMessage().getText().toUpperCase().split("\\s+")[0];
@@ -49,10 +45,43 @@ public class CommandProcessor {
         // Identify command type from user's message
         CommandType commandType = identifyCommand(messageText);
 
+        // If User has insufficient Access Level to execute the requested command, change command to UNRECOGNISED
+        if (
+                isInsufficientRights(
+                        update.getMessage().getFrom().getId(),
+                        commandType.getRequiredAccessLevel()
+                )
+        ) {
+            commandType = CommandType.UNRECOGNISED;
+        }
+
         // Get Command instance from identified command type
         Command command = commandMap.get(commandType);
 
         // Execute command via interface
         command.execute(update, telebot);
+    }
+
+    private CommandType identifyCommand(String text) {
+        return switch (text) {
+            case "/START" -> CommandType.START;
+            case "/STOP" -> CommandType.STOP;
+            case "/SUBSCRIBE" -> CommandType.SUBSCRIBE;
+            case "/UNSUBSCRIBE" -> CommandType.UNSUBSCRIBE;
+            case "/SUBSCRIPTIONS" -> CommandType.SUBSCRIPTIONS;
+            case "/STATISTICS" -> CommandType.STATISTICS;
+            default -> CommandType.UNRECOGNISED;
+        };
+    }
+
+    private boolean isInsufficientRights(Long userId, int requiredAccLevel) {
+        // Get user's actual access level
+        int userAccLevel = userRepository.findById(userId)
+                .map(User::getUserRole)
+                .orElse(UserRole.GUEST)
+                .getAccessLevel();
+
+        // Compare to the required access level
+        return userAccLevel < requiredAccLevel;
     }
 }

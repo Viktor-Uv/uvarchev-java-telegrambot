@@ -14,7 +14,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Modifying
     @Query(
             value = "UPDATE User u " +
-                    " SET u.isActive = false " +
+                    " SET u.isActive = false, " +
+                    " u.userRole = 'GUEST'" +
                     " WHERE u.telegramId = :userId"
     )
     int deactivateById(Long userId);

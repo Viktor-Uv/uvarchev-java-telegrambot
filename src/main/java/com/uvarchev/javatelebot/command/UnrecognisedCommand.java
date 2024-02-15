@@ -1,7 +1,11 @@
 package com.uvarchev.javatelebot.command;
 
 import com.uvarchev.javatelebot.bot.Telebot;
+import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
+import com.uvarchev.javatelebot.enums.UserRole;
+import com.uvarchev.javatelebot.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -10,6 +14,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class UnrecognisedCommand implements Command {
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public CommandType getType() {
@@ -24,15 +31,20 @@ public class UnrecognisedCommand implements Command {
         Long userId = update.getMessage().getFrom().getId();
         String firstName = update.getMessage().getChat().getFirstName();
 
+        // Get UserRole to be able to show all available commands to the particular User in the help message
+        UserRole userRole = userRepository.findById(userId)
+                .map(User::getUserRole)
+                .orElse(UserRole.GUEST);
+
         // Generate reply and send it
         telebot.sendMessage(
                 userId.toString(),
-                generateReply(firstName),
+                generateReply(firstName, userRole),
                 update.getMessage().getMessageId()
         );
     }
 
-    private String generateReply(String firstName) {
+    private String generateReply(String firstName, UserRole userRole) {
         // Load all available commands
         String supportedCommands =
                 Arrays
@@ -40,7 +52,7 @@ public class UnrecognisedCommand implements Command {
                                 CommandType.values()
                         )
                         .filter(
-                                commandType -> !commandType.equals(CommandType.UNRECOGNISED)
+                                command -> isEnoughRights(userRole, command)
                         )
                         .map(
                                 commandType -> commandType.name().toLowerCase()
@@ -51,6 +63,10 @@ public class UnrecognisedCommand implements Command {
 
         // Generate reply
         return "Sorry, " + firstName + ", command was not recognised.\n" +
-                "Currently supported commands are: /" + supportedCommands + ".";
+                "Currently available commands are: /" + supportedCommands + ".";
+    }
+
+    private boolean isEnoughRights(UserRole userRole, CommandType commandType) {
+        return userRole.getAccessLevel() >= commandType.getRequiredAccessLevel();
     }
 }

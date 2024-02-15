@@ -1,5 +1,6 @@
 package com.uvarchev.javatelebot.entity;
 
+import com.uvarchev.javatelebot.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,10 @@ public class User {
     @Column(name = "user_is_active", columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isActive; // Defined by "/start" and "/stop" commands
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "user_role", columnDefinition = "VARCHAR(255) DEFAULT 'GUEST'")
+    private UserRole userRole;
+
     @OneToMany(
             mappedBy = "user", // marks User as main in user-subscription relationship
             orphanRemoval = true, // if user has been removed - remove its subscriptions
@@ -34,7 +39,7 @@ public class User {
     public User(Long telegramId) {
         this.telegramId = telegramId;
         this.isActive = true;
-        this.subscriptions = null;
+        this.userRole = UserRole.USER;
     }
 
     public void addSubscription(Subscription subscription) {

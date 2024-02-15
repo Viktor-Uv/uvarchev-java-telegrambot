@@ -6,6 +6,7 @@ import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.enums.ServiceType;
+import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,12 +77,13 @@ public class SubscribeCommand implements Command {
             return "Sorry, but correct usage is: /subscribe <location>";
         }
 
-        // Get user from repository, or create new user
+        // Get user from repository
         User user = userRepository
                 .findById(userId)
-                .orElseGet(
-                        () -> new User(userId)
-                );
+                .orElse(null);
+        if (user == null) {
+            return "Sorry, but your user ID was not found. Use '/start' to get yourself registered";
+        }
 
         // Create new subscription
         Subscription subscription = new Subscription(user, desiredService);

@@ -9,19 +9,19 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class ListCommand implements Command {
+public class SubscriptionsCommand implements Command {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
     @Override
     public CommandType getType() {
-        return CommandType.LIST;
+        return CommandType.SUBSCRIPTIONS;
     }
 
     @Override
     @Transactional
-    // '/listSub'
+    // '/subscriptions'
     // Lists all active subscriptions
     public void execute(Update update, Telebot telebot) {
         // Get user details

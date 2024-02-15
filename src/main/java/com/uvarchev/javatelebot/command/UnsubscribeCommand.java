@@ -40,7 +40,7 @@ public class UnsubscribeCommand implements Command {
         // Return error msg in case of incorrect command usage
         if (commandLineArgs.length != 2) {
             return "Sorry, but correct usage is: /unsubscribe <subscription_id>\n" +
-                    "You can use command /list to find desired subscription ID";
+                    "You can use command /subscriptions to find desired subscription ID";
         }
 
         // Try to convert provided parameter into a Long

@@ -38,10 +38,9 @@ public class StopCommand implements Command {
                 // Try to get user from repository
                 .findById(userId)
                 .map(
-                        // if user was found - set inactive and save to repo
+                        // if user was found - set inactive and lower UserRole to GUEST
                         leavingUser -> {
-                            leavingUser.setActive(false);
-                            userRepository.save(leavingUser);
+                            userRepository.deactivateById(userId);
                             return "Updates are stopped. Bye, " + firstName + ", till next time!";
                         }
                 )
