@@ -1,6 +1,7 @@
-package com.uvarchev.javatelebot.command;
+package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.Telebot;
+import com.uvarchev.javatelebot.bot.command.Command;
 import com.uvarchev.javatelebot.enums.CommandType;
 import org.telegram.telegrambots.meta.api.objects.Update;
 

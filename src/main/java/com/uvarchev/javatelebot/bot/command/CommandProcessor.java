@@ -1,4 +1,4 @@
-package com.uvarchev.javatelebot.command;
+package com.uvarchev.javatelebot.bot.command;
 
 import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.entity.User;
@@ -6,7 +6,7 @@ import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component
+@Service
 public class CommandProcessor {
 
     @Autowired

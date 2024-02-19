@@ -1,12 +1,12 @@
-package com.uvarchev.javatelebot.command;
+package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.Telebot;
+import com.uvarchev.javatelebot.bot.command.Command;
 import com.uvarchev.javatelebot.entity.Parameter;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.enums.ServiceType;
-import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;

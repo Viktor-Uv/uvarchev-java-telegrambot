@@ -1,8 +1,10 @@
-package com.uvarchev.javatelebot.service;
+package com.uvarchev.javatelebot.periodic;
 
 import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
+import com.uvarchev.javatelebot.network.ApiClient;
+import com.uvarchev.javatelebot.entity.News;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class PeriodicTask {
+public class HourlyTask {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -24,7 +26,7 @@ public class PeriodicTask {
     private final Telebot telebot;
 
     @Autowired
-    public PeriodicTask(Telebot telebot) {
+    public HourlyTask(Telebot telebot) {
         this.telebot = telebot;
     }
 
