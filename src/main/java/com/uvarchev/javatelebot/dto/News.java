@@ -1,4 +1,4 @@
-package com.uvarchev.javatelebot.entity;
+package com.uvarchev.javatelebot.dto;
 
 import com.google.gson.annotations.SerializedName;
 import lombok.Getter;

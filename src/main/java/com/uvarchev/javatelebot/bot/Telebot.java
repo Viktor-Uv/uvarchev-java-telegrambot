@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.bot;
 
 import com.uvarchev.javatelebot.bot.command.CommandProcessor;
+import com.uvarchev.javatelebot.dto.Reply;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,9 +17,6 @@ public class Telebot extends TelegramLongPollingBot {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private CommandProcessor commandProcessor;
-
     private final TelebotConfig config;
 
     public Telebot(TelebotConfig config) {
@@ -29,14 +27,23 @@ public class Telebot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // Check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            // Process and execute command
-            commandProcessor.processCommand(update, this);
+            // Process the Update
+            CommandProcessor commandProcessor = new CommandProcessor(update);
+            Reply reply = commandProcessor.processUpdate();
+
+            // Send the Reply
+            sendMessage(reply);
         }
     }
 
-    public void sendMessage(String address, String messageBody, int msgIdToReplyTo) {
-        SendMessage sendMessage = new SendMessage(address, messageBody);
-        sendMessage.setReplyToMessageId(msgIdToReplyTo);
+    public void sendMessage(Reply reply) {
+        SendMessage sendMessage = new SendMessage(
+                reply.getUserId().toString(),
+                reply.getMessageBody()
+        );
+        sendMessage.setReplyToMessageId(
+                reply.getMsgId()
+        );
 
         try {
             execute(sendMessage);
@@ -44,7 +51,9 @@ public class Telebot extends TelegramLongPollingBot {
             // Handle case when user has stopped & blocked the bot
             if (e.getErrorCode().equals(403)) {
                 // Set user inactive
-                userRepository.deactivateById(Long.valueOf(address));
+                userRepository.deactivateById(
+                        reply.getUserId()
+                );
             }
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);

@@ -9,16 +9,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class StopCommandReceived implements Command {
+public class StopCommandReceived {
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    public CommandType getType() {
-        return CommandType.STOP;
-    }
-
-    @Override
     // '/stop'
     // Set leaving user inactive
     public void execute(Update update, Telebot telebot) {
@@ -26,12 +20,12 @@ public class StopCommandReceived implements Command {
         Long userId = update.getMessage().getFrom().getId();
         String firstName = update.getMessage().getChat().getFirstName();
 
-        // Generate reply and send it
-        telebot.sendMessage(
-                userId.toString(),
-                generateReply(userId, firstName),
-                update.getMessage().getMessageId()
-        );
+//        // Generate reply and send it
+//        telebot.sendMessage(
+//                userId.toString(),
+//                generateReply(userId, firstName),
+//                update.getMessage().getMessageId()
+//        );
     }
 
     private String generateReply(Long userId, String firstName) {

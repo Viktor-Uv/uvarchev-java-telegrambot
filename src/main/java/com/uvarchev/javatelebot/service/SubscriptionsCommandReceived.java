@@ -10,17 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class SubscriptionsCommandReceived implements Command {
+public class SubscriptionsCommandReceived {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    @Override
-    public CommandType getType() {
-        return CommandType.SUBSCRIPTIONS;
-    }
-
-    @Override
     @Transactional
     // '/subscriptions'
     // Lists all active subscriptions
@@ -28,12 +22,12 @@ public class SubscriptionsCommandReceived implements Command {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();
 
-        // Generate reply and send it
-        telebot.sendMessage(
-                userId.toString(),
-                generateReply(userId),
-                update.getMessage().getMessageId()
-        );
+//        // Generate reply and send it
+//        telebot.sendMessage(
+//                userId.toString(),
+//                generateReply(userId),
+//                update.getMessage().getMessageId()
+//        );
     }
 
     private String generateReply(Long userId) {

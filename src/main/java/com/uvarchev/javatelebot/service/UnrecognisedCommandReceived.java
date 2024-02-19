@@ -14,17 +14,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
-public class UnrecognisedCommandReceived implements Command {
+public class UnrecognisedCommandReceived {
 
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    public CommandType getType() {
-        return CommandType.UNRECOGNISED;
-    }
-
-    @Override
     // '/any_unrecognised_command'
     // Reply with unrecognised command error message. List all available commands
     public void execute(Update update, Telebot telebot) {
@@ -37,12 +31,12 @@ public class UnrecognisedCommandReceived implements Command {
                 .map(User::getUserRole)
                 .orElse(UserRole.GUEST);
 
-        // Generate reply and send it
-        telebot.sendMessage(
-                userId.toString(),
-                generateReply(firstName, userRole),
-                update.getMessage().getMessageId()
-        );
+//        // Generate reply and send it
+//        telebot.sendMessage(
+//                userId.toString(),
+//                generateReply(firstName, userRole),
+//                update.getMessage().getMessageId()
+//        );
     }
 
     private String generateReply(String firstName, UserRole userRole) {

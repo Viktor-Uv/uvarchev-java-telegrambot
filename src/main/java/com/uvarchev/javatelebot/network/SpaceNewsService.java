@@ -1,6 +1,6 @@
 package com.uvarchev.javatelebot.network;
 
-import com.uvarchev.javatelebot.entity.NewsResults;
+import com.uvarchev.javatelebot.dto.NewsResults;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;

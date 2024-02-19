@@ -4,7 +4,7 @@ import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
 import com.uvarchev.javatelebot.network.ApiClient;
-import com.uvarchev.javatelebot.entity.News;
+import com.uvarchev.javatelebot.dto.News;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -84,15 +84,15 @@ public class HourlyTask {
                             )
                             .toList();
 
-                    // Send message to each user
-                    individualList
-                            .forEach(
-                                    news -> telebot.sendMessage(
-                                            sub.getUser().getTelegramId().toString(),
-                                            news.toString(),
-                                            0
-                                    )
-                            );
+//                    // Send message to each user
+//                    individualList
+//                            .forEach(
+//                                    news -> telebot.sendMessage(
+//                                            sub.getUser().getTelegramId().toString(),
+//                                            news.toString(),
+//                                            0
+//                                    )
+//                            );
 
                     // If user has blocked the bot, he will become inactive in sendMessage() method,
                     // this is being checked here

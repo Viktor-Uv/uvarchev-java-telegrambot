@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
-public class SubscribeCommandReceived implements Command {
+public class SubscribeCommandReceived {
 
     @Autowired
     private UserRepository userRepository;
@@ -26,12 +26,6 @@ public class SubscribeCommandReceived implements Command {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    @Override
-    public CommandType getType() {
-        return CommandType.SUBSCRIBE;
-    }
-
-    @Override
     @Transactional
     // '/addSub <service>'
     // Add subscription for user
@@ -42,12 +36,12 @@ public class SubscribeCommandReceived implements Command {
         // Get command options
         String[] commandLineArgs = update.getMessage().getText().toUpperCase().split("\\s+");
 
-        // Generate reply and send it
-        telebot.sendMessage(
-                userId.toString(),
-                generateReply(userId, commandLineArgs),
-                update.getMessage().getMessageId()
-        );
+//        // Generate reply and send it
+//        telebot.sendMessage(
+//                userId.toString(),
+//                generateReply(userId, commandLineArgs),
+//                update.getMessage().getMessageId()
+//        );
     }
 
     private String generateReply(Long userId, String[] commandLineArgs) {

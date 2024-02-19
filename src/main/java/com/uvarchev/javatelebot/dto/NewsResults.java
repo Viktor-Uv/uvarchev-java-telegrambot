@@ -1,7 +1,6 @@
-package com.uvarchev.javatelebot.entity;
+package com.uvarchev.javatelebot.dto;
 
 import com.google.gson.annotations.SerializedName;
-import com.uvarchev.javatelebot.entity.News;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

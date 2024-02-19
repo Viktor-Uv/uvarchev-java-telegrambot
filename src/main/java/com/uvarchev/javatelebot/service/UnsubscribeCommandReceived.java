@@ -9,17 +9,11 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class UnsubscribeCommandReceived implements Command {
+public class UnsubscribeCommandReceived {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    @Override
-    public CommandType getType() {
-        return CommandType.UNSUBSCRIBE;
-    }
-
-    @Override
     // '/removeSubId <subscription_id>'
     // Deactivates subscription with the given ID
     public void execute(Update update, Telebot telebot) {
@@ -29,12 +23,12 @@ public class UnsubscribeCommandReceived implements Command {
         // Get command options
         String[] commandLineArgs = update.getMessage().getText().toUpperCase().split("\\s+");
 
-        // Generate reply and send it
-        telebot.sendMessage(
-                userId.toString(),
-                generateReply(userId, commandLineArgs),
-                update.getMessage().getMessageId()
-        );
+//        // Generate reply and send it
+//        telebot.sendMessage(
+//                userId.toString(),
+//                generateReply(userId, commandLineArgs),
+//                update.getMessage().getMessageId()
+//        );
     }
 
     private String generateReply(Long userId, String[] commandLineArgs) {

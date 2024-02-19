@@ -6,5 +6,5 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 public interface Command {
     CommandType getType();
-    void execute(Update update, Telebot telebot);
+    String execute();
 }

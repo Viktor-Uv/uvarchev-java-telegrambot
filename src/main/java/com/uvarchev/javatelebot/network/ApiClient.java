@@ -1,7 +1,7 @@
 package com.uvarchev.javatelebot.network;
 
-import com.uvarchev.javatelebot.entity.News;
-import com.uvarchev.javatelebot.entity.NewsResults;
+import com.uvarchev.javatelebot.dto.News;
+import com.uvarchev.javatelebot.dto.NewsResults;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
