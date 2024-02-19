@@ -18,7 +18,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
-public class SubscribeCommand implements Command {
+public class SubscribeCommandReceived implements Command {
 
     @Autowired
     private UserRepository userRepository;

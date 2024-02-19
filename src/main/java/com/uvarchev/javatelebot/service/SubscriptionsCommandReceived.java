@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class SubscriptionsCommand implements Command {
+public class SubscriptionsCommandReceived implements Command {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;

@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @Component
-public class UnrecognisedCommand implements Command {
+public class UnrecognisedCommandReceived implements Command {
 
     @Autowired
     private UserRepository userRepository;

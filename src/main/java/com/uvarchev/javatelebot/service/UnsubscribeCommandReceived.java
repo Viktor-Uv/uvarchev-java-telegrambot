@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
 @Component
-public class UnsubscribeCommand implements Command {
+public class UnsubscribeCommandReceived implements Command {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;

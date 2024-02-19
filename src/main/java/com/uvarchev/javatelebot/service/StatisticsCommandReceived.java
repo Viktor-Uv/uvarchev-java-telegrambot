@@ -5,10 +5,10 @@ import com.uvarchev.javatelebot.bot.command.Command;
 import com.uvarchev.javatelebot.enums.CommandType;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
-public class StatisticsCommand implements Command {
+public class StatisticsCommandReceived implements Command {
     @Override
     public CommandType getType() {
-        return null;
+        return CommandType.STATISTICS;
     }
 
     @Override
