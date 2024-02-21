@@ -14,8 +14,8 @@ public class UnsubscribeCommandReceived {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
-    // '/removeSubId <subscription_id>'
-    // Deactivates subscription with the given ID
+    // ''
+    //
     public void execute(Update update, Telebot telebot) {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();

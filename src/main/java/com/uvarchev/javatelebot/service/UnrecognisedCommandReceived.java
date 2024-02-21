@@ -19,8 +19,6 @@ public class UnrecognisedCommandReceived {
     @Autowired
     private UserRepository userRepository;
 
-    // '/any_unrecognised_command'
-    // Reply with unrecognised command error message. List all available commands
     public void execute(Update update, Telebot telebot) {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();

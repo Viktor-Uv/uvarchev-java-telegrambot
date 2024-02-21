@@ -16,8 +16,8 @@ public class SubscriptionsCommandReceived {
     private SubscriptionRepository subscriptionRepository;
 
     @Transactional
-    // '/subscriptions'
-    // Lists all active subscriptions
+    // ''
+    //
     public void execute(Update update, Telebot telebot) {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();

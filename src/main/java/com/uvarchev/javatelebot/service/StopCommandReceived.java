@@ -13,8 +13,6 @@ public class StopCommandReceived {
     @Autowired
     private UserRepository userRepository;
 
-    // '/stop'
-    // Set leaving user inactive
     public void execute(Update update, Telebot telebot) {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();

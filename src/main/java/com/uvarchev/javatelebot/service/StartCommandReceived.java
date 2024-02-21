@@ -1,16 +1,11 @@
 package com.uvarchev.javatelebot.service;
 
-import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.bot.command.Command;
 import com.uvarchev.javatelebot.bot.command.StartCommand;
-import com.uvarchev.javatelebot.entity.User;
-import com.uvarchev.javatelebot.enums.CommandType;
-import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.Update;
+
 
 @Service
 public class StartCommandReceived {
@@ -18,13 +13,8 @@ public class StartCommandReceived {
     @Autowired
     private UserRepository userRepository;
 
-    public String respond(StartCommand command) {
-        // TODO Start Command logic
-        return command.getMsgText();
-    }
 
-//    // '/start'
-//    // Register new user or reactivate old, but inactive user
+
 //    public void execute(Update update, Telebot telebot) {
 //        // Get user details
 //        Long userId = update.getMessage().getFrom().getId();

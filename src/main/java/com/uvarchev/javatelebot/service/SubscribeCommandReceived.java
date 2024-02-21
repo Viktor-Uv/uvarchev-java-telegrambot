@@ -27,8 +27,8 @@ public class SubscribeCommandReceived {
     private SubscriptionRepository subscriptionRepository;
 
     @Transactional
-    // '/addSub <service>'
-    // Add subscription for user
+    //
+    //
     public void execute(Update update, Telebot telebot) {
         // Get user details
         Long userId = update.getMessage().getFrom().getId();
