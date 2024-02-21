@@ -10,7 +10,6 @@ import lombok.Getter;
 @Getter
 public class StartCommand implements Command {
 
-    private String msgText;
     private String userName;
     private Long userId;
 

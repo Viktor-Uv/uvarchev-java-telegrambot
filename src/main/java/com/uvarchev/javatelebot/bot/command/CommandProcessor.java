@@ -49,12 +49,12 @@ public class CommandProcessor {
      * Selects required command based on the first word of the users input.
      * If the required pattern doesn't match, an UNRECOGNIZED command will be selected.
      *
-     * @param firstWord The first complete word from the users input
-     * @return Commands implementation, selected based on the users input
+     * @param firstWord The first complete word from the user's input
+     * @return Commands implementation, selected based on the user's input
      */
     private Command createCommand(String firstWord) {
         return switch (firstWord) {
-            case "/START" -> new StartCommand(msgText, userName, userId);
+            case "/START" -> new StartCommand(userName, userId);
             case "/STOP" -> new StopCommand(msgText, userName, userId);
             case "/SUBSCRIBE" -> new SubscribeCommand(msgText, userName, userId);
             case "/UNSUBSCRIBE" -> new UnsubscribeCommand(msgText, userName, userId);

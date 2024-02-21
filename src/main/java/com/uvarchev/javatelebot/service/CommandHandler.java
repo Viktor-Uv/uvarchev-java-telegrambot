@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.*;
+import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -10,18 +11,22 @@ public class CommandHandler {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     /**
-     * Registers new user or reactivates old, but inactive user
+     * Registers new user or reactivates guest
      * @Usage: /start
      */
-    public final String processAndRespond(StartCommand command) {
-        // TODO Start command logic
-        return command.getMsgText();
+    public String processAndRespond(StartCommand command) {
+        return userService.activateUser(
+                command,
+                findUserById(command.getUserId())
+        );
     }
 
     /**
-     * Sets leaving user inactive
+     * Deactivates leaving user by lowering its UserRole to guest
      * @Usage: /stop
      */
     public String processAndRespond(StopCommand command) {
@@ -66,12 +71,23 @@ public class CommandHandler {
     }
 
     /**
-     * Informs that command wasn't unrecognised, list all available commands
+     * Informs that command wasn't unrecognised, lists all available commands
      * @Usage: ANY_OTHER_COMMAND
      */
     public String processAndRespond(UnrecognisedCommand command) {
         // TODO Unrecognised Command logic
         return "UNRECOGNISED: " + command.getMsgText();
+    }
+
+    /**
+     * Finds a user by their id in the database.
+     * @param userId the id of the user to find
+     * @return the user object if found, or null otherwise
+     */
+    private User findUserById(Long userId) {
+        return userRepository
+                .findById(userId)
+                .orElse(null);
     }
 
 }

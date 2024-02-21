@@ -20,7 +20,7 @@ public class User {
     private Long telegramId; // Use Telegram ID as user's primary identifier
 
     @Column(name = "user_is_active", columnDefinition = "TINYINT(1)", nullable = false)
-    private boolean isActive; // Defined by "/start" and "/stop" commands
+    private boolean isActive; // TODO for removal
 
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", columnDefinition = "VARCHAR(255) DEFAULT 'GUEST'")
