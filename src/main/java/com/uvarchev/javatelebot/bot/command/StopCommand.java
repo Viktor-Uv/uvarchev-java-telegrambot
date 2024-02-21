@@ -21,8 +21,8 @@ public class StopCommand implements Command {
     }
 
     @Override
-    public String execute() {
-        return new CommandHandler().processAndRespond(this);
+    public String execute(CommandHandler commandHandler) {
+        return commandHandler.processAndRespond(this);
     }
 
 }

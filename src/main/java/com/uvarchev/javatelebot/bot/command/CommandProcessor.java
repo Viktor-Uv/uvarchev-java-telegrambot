@@ -1,28 +1,32 @@
 package com.uvarchev.javatelebot.bot.command;
 
 import com.uvarchev.javatelebot.dto.Reply;
+import com.uvarchev.javatelebot.service.CommandHandler;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+@Component
 public class CommandProcessor {
+
+    @Autowired
+    private CommandHandler commandHandler;
+
     private Long userId;
-    private int msgId;
     private String msgText;
     private String userName;
-
-    public CommandProcessor(Update update) {
-        userId = update.getMessage().getFrom().getId();
-        msgId = update.getMessage().getMessageId();
-        msgText = update.getMessage().getText();
-        userName = update.getMessage().getChat().getFirstName();
-    }
 
     /**
      * @return Reply object with address, reply reference and reply text
      */
-    public Reply processUpdate() {
+    public Reply processUpdate(Update update) {
+        userId = update.getMessage().getFrom().getId();
+        msgText = update.getMessage().getText();
+        userName = update.getMessage().getChat().getFirstName();
+
         return new Reply(
                 userId,
-                msgId,
+                update.getMessage().getMessageId(),
                 generateReply(msgText)
         );
     }
@@ -38,7 +42,7 @@ public class CommandProcessor {
         );
 
         // Reply
-        return command.execute();
+        return command.execute(commandHandler);
     }
 
     /**

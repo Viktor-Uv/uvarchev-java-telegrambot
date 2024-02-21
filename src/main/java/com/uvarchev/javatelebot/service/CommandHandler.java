@@ -1,10 +1,15 @@
 package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.*;
+import com.uvarchev.javatelebot.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class CommandHandler {
+
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Registers new user or reactivates old, but inactive user
