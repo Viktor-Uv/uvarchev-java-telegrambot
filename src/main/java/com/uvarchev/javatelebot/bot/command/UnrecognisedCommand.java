@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @Getter
 public class UnrecognisedCommand implements Command {
 
-    private String msgText;
     private String userName;
     private Long userId;
 

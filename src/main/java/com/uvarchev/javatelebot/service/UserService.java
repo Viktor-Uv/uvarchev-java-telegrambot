@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.StartCommand;
+import com.uvarchev.javatelebot.bot.command.StopCommand;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
@@ -39,6 +40,17 @@ public class UserService {
         // Save user and return reply
         userRepository.save(user);
         return reply;
+    }
+
+    /**
+     * Deactivates a user by setting their user role to GUEST and updating the database.
+     * @param command a StopCommand object that contains the user id and username
+     * @return a farewell message to the user
+     */
+    public String deactivateUser(StopCommand command) {
+        // Lower the UserRole to GUEST
+        userRepository.deactivateById(command.getUserId());
+        return "Updates are stopped. Bye, " + command.getUserName() + ", till next time!";
     }
 
 }

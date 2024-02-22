@@ -2,6 +2,8 @@ package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.*;
 import com.uvarchev.javatelebot.entity.User;
+import com.uvarchev.javatelebot.enums.CommandType;
+import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +32,23 @@ public class CommandHandler {
      * @Usage: /stop
      */
     public String processAndRespond(StopCommand command) {
-        // TODO Stop command logic
-        return command.getMsgText();
+        User user = findUserById(command.getUserId());
+        // Check if the user exists and has access to the command type
+        if (
+                user != null &&
+                hasAccess(user.getUserRole(), command.getType())
+        ) {
+            // Deactivate the user
+            return userService.deactivateUser(command);
+        } else {
+            // Reroute to UnrecognisedCommand method
+            return processAndRespond(
+                    new UnrecognisedCommand(
+                            command.getUserName(),
+                            command.getUserId()
+                    )
+            );
+        }
     }
 
     /**
@@ -76,7 +93,7 @@ public class CommandHandler {
      */
     public String processAndRespond(UnrecognisedCommand command) {
         // TODO Unrecognised Command logic
-        return "UNRECOGNISED: " + command.getMsgText();
+        return "UNRECOGNISED";
     }
 
     /**
@@ -88,6 +105,15 @@ public class CommandHandler {
         return userRepository
                 .findById(userId)
                 .orElse(null);
+    }
+
+    /**
+     * Checks if a user has sufficient access level to execute a command.
+     * @return true if the user access level is equal or higher than the command required access level,
+     * false otherwise
+     */
+    private boolean hasAccess(UserRole user, CommandType command) {
+        return user.getAccessLevel() >= command.getRequiredAccessLevel();
     }
 
 }

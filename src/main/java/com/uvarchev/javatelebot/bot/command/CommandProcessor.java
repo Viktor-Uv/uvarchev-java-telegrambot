@@ -55,12 +55,12 @@ public class CommandProcessor {
     private Command createCommand(String firstWord) {
         return switch (firstWord) {
             case "/START" -> new StartCommand(userName, userId);
-            case "/STOP" -> new StopCommand(msgText, userName, userId);
+            case "/STOP" -> new StopCommand(userName, userId);
             case "/SUBSCRIBE" -> new SubscribeCommand(msgText, userName, userId);
             case "/UNSUBSCRIBE" -> new UnsubscribeCommand(msgText, userName, userId);
             case "/SUBSCRIPTIONS" -> new SubscriptionsCommand(msgText, userName, userId);
             case "/STATISTICS" -> new StatisticsCommand(msgText, userName, userId);
-            default -> new UnrecognisedCommand(msgText, userName, userId);
+            default -> new UnrecognisedCommand(userName, userId);
         };
     }
 
