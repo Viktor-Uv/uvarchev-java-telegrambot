@@ -1,16 +1,14 @@
 package com.uvarchev.javatelebot.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.uvarchev.javatelebot.enums.ServiceType;
+import com.uvarchev.javatelebot.enums.NewsProvider;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 @Table(name = "subscriptions")
@@ -29,17 +27,7 @@ public class Subscription {
 
     @Enumerated(EnumType.STRING) // store enum as a String in the database
     @Column(name = "subs_service")
-    private ServiceType service; // subscription service
-
-    @OneToMany(
-            mappedBy = "subscription", // marks Subscription as main in subscription-parameter relationship
-            orphanRemoval = true, // if subscription has been removed - remove its parameters
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            } // update subscription's parameters
-    )
-    private Set<Parameter> parameters = new HashSet<>(); // subscription options
+    private NewsProvider provider; // news service provider
 
     @Column(name = "is_active", columnDefinition = "TINYINT(1)", nullable = false)
     private boolean isActive;
@@ -49,32 +37,18 @@ public class Subscription {
 
     public Subscription(
             User user,
-            ServiceType service
+            NewsProvider provider
     ) {
         this.isActive = true;
         // Save current time in ISO-8601 format (ex. 2011-12-03T10:15:30Z):
         this.lastReadId = ZonedDateTime.now();
         this.user = user;
-        this.service = service;
-    }
-
-    public Subscription(
-            User user,
-            ServiceType service,
-            Set<Parameter> parameters
-    ) {
-        this(user, service);
-        this.parameters = parameters;
-    }
-
-    public void addParameter(Parameter parameter) {
-        parameters.add(parameter);
+        this.provider = provider;
     }
 
     public String toString() {
         return this.getId() + ", " +
-                this.getService() + ", " +
-                this.getParameters();
+                this.getProvider();
     }
 
     @Override
@@ -82,12 +56,11 @@ public class Subscription {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Subscription that = (Subscription) o;
-        return service == that.service
-                && Objects.equals(parameters, that.parameters);
+        return Objects.equals(user, that.user) && provider == that.provider;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(service);
+        return Objects.hash(user, provider);
     }
 }

@@ -2,7 +2,6 @@ package com.uvarchev.javatelebot.bot.command;
 
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.service.CommandHandler;
-import com.uvarchev.javatelebot.service.StartCommandReceived;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

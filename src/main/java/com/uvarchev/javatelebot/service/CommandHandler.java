@@ -7,17 +7,24 @@ import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.function.Function;
 
 @Service
+@Transactional
 public class CommandHandler {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     /**
      * Registers new user or reactivates guest
+     *
      * @Usage: /start
      */
     public String processAndRespond(StartCommand command) {
@@ -29,39 +36,35 @@ public class CommandHandler {
 
     /**
      * Deactivates leaving user by lowering its UserRole to guest
+     *
      * @Usage: /stop
      */
     public String processAndRespond(StopCommand command) {
-        User user = findUserById(command.getUserId());
-        // Check if the user exists and has access to the command type
-        if (
-                user != null &&
-                hasAccess(user.getUserRole(), command.getType())
-        ) {
-            // Deactivate the user
-            return userService.deactivateUser(command);
-        } else {
-            // Reroute to UnrecognisedCommand method
-            return processAndRespond(
-                    new UnrecognisedCommand(
-                            command.getUserName(),
-                            command.getUserId()
-                    )
-            );
-        }
+        return processIfAuthorised(
+                command.getUserId(),
+                command.getUserName(),
+                command.getType(),
+                user -> userService.deactivateUser(command)
+        );
     }
 
     /**
      * Adds subscription for a user
-     * @Usage: /subscribe [service]
+     *
+     * @Usage: /subscribe [provider]
      */
     public String processAndRespond(SubscribeCommand command) {
-        // TODO Subscribe command logic
-        return command.getMsgText();
+        return processIfAuthorised(
+                command.getUserId(),
+                command.getUserName(),
+                command.getType(),
+                user -> subscriptionService.addSubscription(command, user)
+        );
     }
 
     /**
      * Deactivates subscription with the given ID
+     *
      * @Usage: /unsubscribe [subscription_id]
      */
     public String processAndRespond(UnsubscribeCommand command) {
@@ -71,6 +74,7 @@ public class CommandHandler {
 
     /**
      * Lists all active subscriptions
+     *
      * @Usage: /subscriptions
      */
     public String processAndRespond(SubscriptionsCommand command) {
@@ -80,6 +84,7 @@ public class CommandHandler {
 
     /**
      * Shows application statistics for Administrators
+     *
      * @Usage: /statistics
      */
     public String processAndRespond(StatisticsCommand command) {
@@ -88,7 +93,8 @@ public class CommandHandler {
     }
 
     /**
-     * Informs that command wasn't unrecognised, lists all available commands
+     * Informs that command wasn't recognised, lists all available commands
+     *
      * @Usage: ANY_OTHER_COMMAND
      */
     public String processAndRespond(UnrecognisedCommand command) {
@@ -97,7 +103,39 @@ public class CommandHandler {
     }
 
     /**
+     * Processes a command if the user is authorised to execute it.
+     *
+     * @param userId    the ID of the user who initiated the command
+     * @param userName  the name of the user who initiated the command
+     * @param command   the type of the command to be executed
+     * @param operation the function that performs the operation corresponding to the command
+     * @return the result of the operation as a string,
+     * or an error message if the user is not authorised or does not exist
+     */
+    private String processIfAuthorised(
+            Long userId,
+            String userName,
+            CommandType command,
+            Function<User, String> operation
+    ) {
+        // Try to get requested user from DB
+        User user = findUserById(userId);
+
+        // Check if the user exists and has access to the command type
+        if (user != null && hasAccess(user.getUserRole(), command)) {
+            // Proceed performing requested operation
+            return operation.apply(user);
+        } else {
+            // Reroute to the UnrecognisedCommand method
+            return processAndRespond(
+                    new UnrecognisedCommand(userName, userId)
+            );
+        }
+    }
+
+    /**
      * Finds a user by their id in the database.
+     *
      * @param userId the id of the user to find
      * @return the user object if found, or null otherwise
      */
@@ -109,6 +147,7 @@ public class CommandHandler {
 
     /**
      * Checks if a user has sufficient access level to execute a command.
+     *
      * @return true if the user access level is equal or higher than the command required access level,
      * false otherwise
      */

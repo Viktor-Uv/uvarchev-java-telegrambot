@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -28,7 +29,7 @@ public class User {
 
     @OneToMany(
             mappedBy = "user", // marks User as main in user-subscription relationship
-            orphanRemoval = true, // if user has been removed - remove its subscriptions
+            orphanRemoval = true, // if a user has been removed - remove its subscriptions
             cascade = {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
@@ -44,5 +45,25 @@ public class User {
 
     public void addSubscription(Subscription subscription) {
         subscriptions.add(subscription);
+    }
+
+    public Subscription getEqualSubscription(Subscription subscription) {
+        return getSubscriptions().stream()
+                .filter(s -> s.equals(subscription))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(telegramId, user.telegramId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(telegramId);
     }
 }

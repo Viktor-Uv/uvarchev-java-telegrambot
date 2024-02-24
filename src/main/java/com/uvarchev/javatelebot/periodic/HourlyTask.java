@@ -99,7 +99,7 @@ public class HourlyTask {
                     if (sub.getUser().isActive()) {
                         // If User is still active - update his subscription's last read time
                         sub.setLastReadId(ZonedDateTime.now());
-                        subscriptionRepository.save(sub);
+//                        subscriptionRepository.save(sub);
                     }
                 }
         );
