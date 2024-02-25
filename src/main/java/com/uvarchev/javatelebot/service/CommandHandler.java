@@ -88,13 +88,19 @@ public class CommandHandler {
     }
 
     /**
-     * Lists all active subscriptions
+     * Lists all active subscriptions if the user is authorised.
      *
+     * @param command the command issued by the user
+     * @return a response String if the user is authorised, or an error message otherwise
      * @Usage: /subscriptions
      */
     public String processAndRespond(SubscriptionsCommand command) {
-        // TODO List Subscriptions command logic
-        return command.getMsgText();
+        return processIfAuthorised(
+                command.getUserId(),
+                command.getUserName(),
+                command.getType(),
+                user -> subscriptionService.listSubscriptions(command, user)
+        );
     }
 
     /**

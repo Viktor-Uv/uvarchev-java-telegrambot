@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.SubscribeCommand;
+import com.uvarchev.javatelebot.bot.command.SubscriptionsCommand;
 import com.uvarchev.javatelebot.bot.command.UnsubscribeCommand;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
@@ -58,6 +59,53 @@ public class SubscriptionService {
                     user, command.getType(), command.getMsgText(), command.getUserName()
             );
         }
+    }
+
+    /**
+     * Lists all active subscriptions for the user and also shows available subscriptions.
+     *
+     * @param user the user whose subscription list is being requested
+     * @return a string that lists all the user's active subscriptions and available ones
+     */
+    public String listSubscriptions(SubscriptionsCommand command, User user) {
+        Set<Subscription> userSubscriptions = user.getAllActiveSubscriptions();
+        StringBuilder response = new StringBuilder();
+
+        if (userSubscriptions.isEmpty()) {
+            response.append("Unfortunately, ")
+                    .append(command.getUserName())
+                    .append(", you currently don't have any active subscriptions.\n");
+        } else {
+            response.append("Your active subscriptions are:\n");
+            userSubscriptions.forEach(
+                    s -> response.append("- ")
+                            .append(s.getProvider().toString())
+                            .append("\n")
+            );
+        }
+
+        // Get all available providers
+        Set<NewsProvider> availableProviders = Arrays.stream(NewsProvider.values())
+                .collect(Collectors.toCollection(
+                        LinkedHashSet::new
+                ));
+
+        // Remove user's subscriptions from the availableProviders
+        userSubscriptions.forEach(
+                s -> availableProviders.remove(s.getProvider())
+        );
+
+        if (!availableProviders.isEmpty()) {
+            response.append("\nAvailable subscriptions for you:\n")
+                    .append(availableProviders.stream()
+                            .map(Enum::name)
+                            .collect(Collectors.joining(", "))
+                    ).append(".");
+        } else {
+            response.append("\nYou have subscribed to all available providers.\n");
+        }
+
+        return response.toString();
     }
 
     /**
