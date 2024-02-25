@@ -1,6 +1,7 @@
 package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.bot.command.StartCommand;
+import com.uvarchev.javatelebot.bot.command.StatisticsCommand;
 import com.uvarchev.javatelebot.bot.command.StopCommand;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.UserRole;
@@ -51,6 +52,11 @@ public class UserService {
         // Lower the UserRole to GUEST
         userRepository.deactivateById(command.getUserId());
         return "Updates are stopped. Bye, " + command.getUserName() + ", till next time!";
+    }
+
+    public String getAdminStatistics(StatisticsCommand command) {
+        // TODO Statistics for administrators logic
+        return "Statistics for Admin";
     }
 
 }

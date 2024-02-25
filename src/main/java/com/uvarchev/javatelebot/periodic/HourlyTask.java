@@ -61,13 +61,13 @@ public class HourlyTask {
                     "Scheduled task completed, no new articles were found"
             );
 
-            // Update last read time
-            subscriptions.forEach(
-                    sub -> {
-                        sub.setLastReadId(ZonedDateTime.now());
+//            // Update last read time
+//            subscriptions.forEach(
+//                    sub -> {
+//                        sub.setLastReadId(ZonedDateTime.now());
 //                        subscriptionRepository.save(sub);
-                    }
-            );
+//                    }
+//            );
 
             return;
         }
@@ -96,11 +96,11 @@ public class HourlyTask {
 
                     // If user has blocked the bot, he will become inactive in sendMessage() method,
                     // this is being checked here
-                    if (sub.getUser().isActive()) {
-                        // If User is still active - update his subscription's last read time
-                        sub.setLastReadId(ZonedDateTime.now());
+//                    if (sub.getUser().isActive()) {
+//                        // If User is still active - update his subscription's last read time
+//                        sub.setLastReadId(ZonedDateTime.now());
 //                        subscriptionRepository.save(sub);
-                    }
+//                    }
                 }
         );
 

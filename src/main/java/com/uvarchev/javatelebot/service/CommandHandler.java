@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -119,8 +121,14 @@ public class CommandHandler {
      * @Usage: ANY_OTHER_COMMAND
      */
     public String processAndRespond(UnrecognisedCommand command) {
-        // TODO Unrecognised Command logic
-        return "UNRECOGNISED";
+        // Get requesting user's UserRole
+        UserRole userRole = getUserRoleByUserId(command.getUserId());
+
+        // Load all commands available to this user based on the UserRole
+        String availableCommands = getCommandsForUserRole(userRole);
+
+        // Create and return user-specific response
+        return composeUnrecognisedCommandMessage(command.getUserName(), availableCommands);
     }
 
     /**
@@ -167,6 +175,39 @@ public class CommandHandler {
     }
 
     /**
+     * Returns the user role of the user with the given user ID.
+     * If the user ID is not found in the database, returns {@link UserRole} GUEST.
+     *
+     * @param userId the user ID to be searched in the database
+     * @return the user role of the user with the given user ID, or GUEST if not found
+     */
+    private UserRole getUserRoleByUserId(Long userId) {
+        // Try to get requested user from DB
+        User user = findUserById(userId);
+
+        // If no user was found - return GUEST, or the found user's role otherwise
+        if (user == null) {
+            return UserRole.GUEST;
+        } else {
+            return user.getUserRole();
+        }
+    }
+
+    /**
+     * Returns a String with the available commands in lowercase prefixed
+     * with "/" and separated by commas for the given user role.
+     *
+     * @param userRole the user role whose commands are to be returned
+     * @return a String with the available commands for the user role
+     */
+    private String getCommandsForUserRole(UserRole userRole) {
+        return "/" + Arrays.stream(CommandType.values())
+                .filter(commandType -> hasAccess(userRole, commandType))
+                .map(commandType -> commandType.name().toLowerCase())
+                .collect(Collectors.joining(", /"));
+    }
+
+    /**
      * Checks if a user has sufficient access level to execute a command.
      *
      * @return true if the user access level is equal or higher than the command required access level,
@@ -174,6 +215,20 @@ public class CommandHandler {
      */
     private boolean hasAccess(UserRole user, CommandType command) {
         return user.getAccessLevel() >= command.getRequiredAccessLevel();
+    }
+
+    /**
+     * Returns a String with an error message for an unrecognised command.
+     *
+     * @param userName          the name of the user who entered the unrecognised command
+     * @param availableCommands the String with the available commands for the user
+     * @return a String with an error message for the unrecognised command
+     */
+    private String composeUnrecognisedCommandMessage(String userName, String availableCommands) {
+        return "Unfortunately, " + userName +
+                ", this command was not recognised.\n" +
+                "Currently available commands are: "
+                + availableCommands + ".";
     }
 
 }
