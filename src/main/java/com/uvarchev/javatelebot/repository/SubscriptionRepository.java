@@ -20,6 +20,13 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     )
     Iterable<Subscription> findByUserIdAndActiveIsTrue(Long userId);
 
+    /**
+     * Deactivates a user's subscription by setting its isActive field to false in the database.
+     *
+     * @param subId  the ID of the subscription to deactivate
+     * @param userId the ID of the user who owns the subscription
+     * @return the number of rows affected by the update query
+     */
     @Transactional
     @Modifying
     @Query(

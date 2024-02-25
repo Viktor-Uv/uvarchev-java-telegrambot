@@ -15,6 +15,7 @@ public interface UserRepository extends CrudRepository<User, Long> {
      * This method uses a custom query with the @Query annotation and the @Modifying annotation
      * to indicate that it performs an update operation. It also uses the @Transactional annotation
      * to mark the method as transactional and roll back in case of any failure.
+     *
      * @param userId the id of the user to deactivate
      * @return the number of rows affected by the update query
      */

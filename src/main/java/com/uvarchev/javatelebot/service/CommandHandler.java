@@ -23,9 +23,10 @@ public class CommandHandler {
     private SubscriptionService subscriptionService;
 
     /**
-     * Registers new user or reactivates guest
+     * Processes a start command and responds by activating a returning user or creating a new one.
      *
-     * @Usage: /start
+     * @param command the start command issued by the user
+     * @return a reply String that greets the user and indicates whether they are new or returning
      */
     public String processAndRespond(StartCommand command) {
         return userService.activateUser(
@@ -35,9 +36,11 @@ public class CommandHandler {
     }
 
     /**
-     * Deactivates leaving user by lowering its UserRole to guest
+     * Processes a stop command and deactivates the user account if the user is authorised.
      *
-     * @Usage: /stop
+     * @param command the stop command issued by the user
+     * @return the result of the deactivation as a string,
+     * or an error message if the user is not authorised or the account does not exist
      */
     public String processAndRespond(StopCommand command) {
         return processIfAuthorised(
@@ -49,9 +52,13 @@ public class CommandHandler {
     }
 
     /**
-     * Adds subscription for a user
+     * Processes a subscribe command and adds a subscription for the user
+     * to one or more news providers if the user is authorised.
      *
-     * @Usage: /subscribe [provider]
+     * @param command the subscribe command issued by the user
+     * @return the result of the subscription as a string,
+     * or an error message if the user is not authorised or no options are provided
+     * @Usage: /subscribe [provider || ALL]
      */
     public String processAndRespond(SubscribeCommand command) {
         return processIfAuthorised(
@@ -63,13 +70,21 @@ public class CommandHandler {
     }
 
     /**
-     * Deactivates subscription with the given ID
+     * Processes an unsubscribe command and deactivates the subscription for the user
+     * to one or more news providers if the user is authorised.
      *
-     * @Usage: /unsubscribe [subscription_id]
+     * @param command the unsubscribe command issued by the user
+     * @return the result of the deactivation as a string,
+     * or an error message if the user is not authorised or the subscription does not exist
+     * @Usage: /unsubscribe [provider || ALL]
      */
     public String processAndRespond(UnsubscribeCommand command) {
-        // TODO Unsubscribe command logic
-        return command.getMsgText();
+        return processIfAuthorised(
+                command.getUserId(),
+                command.getUserName(),
+                command.getType(),
+                user -> subscriptionService.deactivateSubscription(command, user)
+        );
     }
 
     /**

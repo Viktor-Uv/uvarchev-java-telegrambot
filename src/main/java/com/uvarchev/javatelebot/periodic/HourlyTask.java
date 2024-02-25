@@ -65,7 +65,7 @@ public class HourlyTask {
             subscriptions.forEach(
                     sub -> {
                         sub.setLastReadId(ZonedDateTime.now());
-                        subscriptionRepository.save(sub);
+//                        subscriptionRepository.save(sub);
                     }
             );
 

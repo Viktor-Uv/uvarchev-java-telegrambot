@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
@@ -52,6 +53,20 @@ public class User {
                 .filter(s -> s.equals(subscription))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public Subscription getEqualActiveSubscription(Subscription subscription) {
+        return getSubscriptions().stream()
+                .filter(s -> s.equals(subscription))
+                .filter(Subscription::isActive)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Set<Subscription> getAllActiveSubscriptions() {
+        return getSubscriptions().stream()
+                .filter(Subscription::isActive)
+                .collect(Collectors.toSet());
     }
 
     @Override
