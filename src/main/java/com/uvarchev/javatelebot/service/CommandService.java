@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-public class CommandHandler {
+public class CommandService {
 
     @Autowired
     private UserRepository userRepository;

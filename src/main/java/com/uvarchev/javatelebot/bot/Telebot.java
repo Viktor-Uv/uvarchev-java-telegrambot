@@ -47,7 +47,7 @@ public class Telebot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiRequestException e) {
-            // Handle case when user has stopped & blocked the bot
+            // Handle a case when user has stopped & blocked the bot
             if (e.getErrorCode().equals(403)) {
                 // Set user inactive
 //                userRepository.deactivateById(

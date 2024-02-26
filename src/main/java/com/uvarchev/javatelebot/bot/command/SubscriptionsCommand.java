@@ -1,11 +1,9 @@
 package com.uvarchev.javatelebot.bot.command;
 
-import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.enums.CommandType;
-import com.uvarchev.javatelebot.service.CommandHandler;
+import com.uvarchev.javatelebot.service.CommandService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.telegram.telegrambots.meta.api.objects.Update;
 
 @AllArgsConstructor
 @Getter
@@ -20,8 +18,8 @@ public class SubscriptionsCommand implements Command {
     }
 
     @Override
-    public String execute(CommandHandler commandHandler) {
-        return commandHandler.processAndRespond(this);
+    public String execute(CommandService commandService) {
+        return commandService.processAndRespond(this);
     }
 
 }

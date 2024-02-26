@@ -1,7 +1,7 @@
 package com.uvarchev.javatelebot.bot.command;
 
 import com.uvarchev.javatelebot.dto.Reply;
-import com.uvarchev.javatelebot.service.CommandHandler;
+import com.uvarchev.javatelebot.service.CommandService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 public class CommandProcessor {
 
     @Autowired
-    private CommandHandler commandHandler;
+    private CommandService commandService;
 
     private Long userId;
     private String msgText;
@@ -42,7 +42,7 @@ public class CommandProcessor {
         );
 
         // Reply
-        return command.execute(commandHandler);
+        return command.execute(commandService);
     }
 
     /**
