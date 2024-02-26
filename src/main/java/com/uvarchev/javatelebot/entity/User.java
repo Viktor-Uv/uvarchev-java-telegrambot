@@ -25,7 +25,7 @@ public class User {
     private boolean isActive; // TODO for removal
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "user_role", columnDefinition = "VARCHAR(255) DEFAULT 'GUEST'")
+    @Column(name = "user_role", columnDefinition = "VARCHAR(255) DEFAULT 'UNAUTHORISED'")
     private UserRole userRole;
 
     @OneToMany(
@@ -37,6 +37,9 @@ public class User {
             } // update user's subscriptions
     )
     private Set<Subscription> subscriptions = new HashSet<>(); // user's subscriptions
+
+    @Column(name = "articles_received")
+    private long articlesReceived;
 
     public User(Long telegramId) {
         this.telegramId = telegramId;

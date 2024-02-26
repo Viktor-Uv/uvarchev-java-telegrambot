@@ -1,7 +1,7 @@
 package com.uvarchev.javatelebot.enums;
 
 public enum UserRole {
-    GUEST(0),
+    UNAUTHORISED(0),
     USER(1),
     ADMIN(2);
 

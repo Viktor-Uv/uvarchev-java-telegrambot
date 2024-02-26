@@ -2,7 +2,7 @@ package com.uvarchev.javatelebot.enums;
 
 // Valid commands
 public enum CommandType {
-    // Guest commands
+    // Unauthorised user's commands
     START(0),
 
     // User commands

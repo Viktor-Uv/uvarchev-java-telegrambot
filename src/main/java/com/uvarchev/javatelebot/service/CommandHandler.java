@@ -29,6 +29,7 @@ public class CommandHandler {
      *
      * @param command the start command issued by the user
      * @return a reply String that greets the user and indicates whether they are new or returning
+     * @Usage: /start
      */
     public String processAndRespond(StartCommand command) {
         return userService.activateUser(
@@ -43,6 +44,7 @@ public class CommandHandler {
      * @param command the stop command issued by the user
      * @return the result of the deactivation as a string,
      * or an error message if the user is not authorised or the account does not exist
+     * @Usage: /stop
      */
     public String processAndRespond(StopCommand command) {
         return processIfAuthorised(
@@ -106,19 +108,29 @@ public class CommandHandler {
     }
 
     /**
-     * Shows application statistics for Administrators
+     * Processes the given command and returns a response String if the user is an admin,
+     * or an error message otherwise.
      *
+     * @param command the command to be processed
+     * @return a response String if the user is an admin, or an error message otherwise
      * @Usage: /statistics
      */
     public String processAndRespond(StatisticsCommand command) {
-        // TODO Statistics for administrators logic
-        return command.getMsgText();
+        return processIfAuthorised(
+                command.getUserId(),
+                command.getUserName(),
+                command.getType(),
+                user -> userService.getAdminStatistics()
+        );
     }
 
     /**
-     * Informs that command wasn't recognised, lists all available commands
+     * Processes the given Unrecognised command and returns a response String with the
+     * available commands for the given user role.
      *
-     * @Usage: ANY_OTHER_COMMAND
+     * @param command the command to be processed
+     * @return a response String with the available commands for the requesting user
+     * @Usage: ANY_OTHER_COMMAND || request from unauthorised User or User with insufficient rights
      */
     public String processAndRespond(UnrecognisedCommand command) {
         // Get requesting user's UserRole
@@ -176,18 +188,18 @@ public class CommandHandler {
 
     /**
      * Returns the user role of the user with the given user ID.
-     * If the user ID is not found in the database, returns {@link UserRole} GUEST.
+     * If the user ID is not found in the database, returns {@link UserRole} UNAUTHORISED.
      *
      * @param userId the user ID to be searched in the database
-     * @return the user role of the user with the given user ID, or GUEST if not found
+     * @return the user role of the user with the given user ID, or UNAUTHORISED if not found
      */
     private UserRole getUserRoleByUserId(Long userId) {
         // Try to get requested user from DB
         User user = findUserById(userId);
 
-        // If no user was found - return GUEST, or the found user's role otherwise
+        // If no user was found - return UNAUTHORISED, or the found user's role otherwise
         if (user == null) {
-            return UserRole.GUEST;
+            return UserRole.UNAUTHORISED;
         } else {
             return user.getUserRole();
         }
