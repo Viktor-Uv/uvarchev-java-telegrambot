@@ -1,8 +1,7 @@
 package com.uvarchev.javatelebot.bot;
 
-import com.uvarchev.javatelebot.bot.command.CommandProcessor;
+import com.uvarchev.javatelebot.command.CommandProcessor;
 import com.uvarchev.javatelebot.dto.Reply;
-import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;

@@ -1,4 +1,4 @@
-package com.uvarchev.javatelebot.bot.command;
+package com.uvarchev.javatelebot.command;
 
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.service.CommandService;
@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class SubscribeCommand implements Command {
+public class UnsubscribeCommand implements Command {
 
     private String msgText;
     private String userName;
@@ -15,7 +15,7 @@ public class SubscribeCommand implements Command {
 
     @Override
     public CommandType getType() {
-        return CommandType.SUBSCRIBE;
+        return CommandType.UNSUBSCRIBE;
     }
 
     @Override

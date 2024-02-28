@@ -3,9 +3,11 @@ package com.uvarchev.javatelebot.service;
 import com.uvarchev.javatelebot.dto.News;
 import com.uvarchev.javatelebot.dto.Reply;
 import com.uvarchev.javatelebot.entity.Subscription;
+import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.NewsProvider;
 import com.uvarchev.javatelebot.network.ApiClient;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
+import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A service class that handles the scheduling and distribution of news updates to subscribers.
@@ -24,6 +27,8 @@ public class SchedulerService {
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     /**
      * Fetches the scheduled news updates for all active subscriptions and returns them as a queue of replies.
@@ -164,4 +169,28 @@ public class SchedulerService {
         );
     }
 
+    /**
+     * A method that increments the number of articles received by each user in a map
+     * and saves the updated users to the database.
+     *
+     * @param articlesReceived a map that stores the user ids and the number of articles received
+     */
+    public void incrementReplyCount(Map<Long, Long> articlesReceived) {
+        // Get a list of user ids from Map
+        List<Long> ids = new LinkedList<>(articlesReceived.keySet());
+
+        // Get a list of users from db
+        Iterable<User> userList = userRepository.findAllById(ids);
+
+        // For each user in a user list
+        for (User user : userList) {
+            // Increment articles received
+            user.incrementArticlesReceivedByValue(
+                    articlesReceived.get(user.getTelegramId())
+            );
+        }
+
+        // Save updated user list to db
+        userRepository.saveAll(userList);
+    }
 }

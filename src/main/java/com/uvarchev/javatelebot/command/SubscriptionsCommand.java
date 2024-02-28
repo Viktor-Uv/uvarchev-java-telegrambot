@@ -1,4 +1,4 @@
-package com.uvarchev.javatelebot.bot.command;
+package com.uvarchev.javatelebot.command;
 
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.service.CommandService;

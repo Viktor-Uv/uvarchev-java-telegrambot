@@ -1,6 +1,6 @@
 package com.uvarchev.javatelebot.service;
 
-import com.uvarchev.javatelebot.bot.command.*;
+import com.uvarchev.javatelebot.command.*;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;
 import com.uvarchev.javatelebot.enums.UserRole;

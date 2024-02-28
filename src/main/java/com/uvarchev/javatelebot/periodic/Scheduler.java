@@ -9,9 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 /**
  * A component class that handles the scheduling tasks.
@@ -50,14 +48,20 @@ public class Scheduler {
         // Keep track of failed attempt addresses
         List<Long> failedAttempts = new ArrayList<>();
 
+        // Keep track of how many articles did each user receive during one session
+        Map<Long, Long> articlesReceived = new HashMap<>();
+
         // For each reply object
         while (!replyQueue.isEmpty()) {
             // Try to send reply via Telegram and update subscription's last read id
-            processReply(replyQueue.poll(), currentTime, failedAttempts);
+            processReply(replyQueue.poll(), currentTime, failedAttempts, articlesReceived);
         }
 
         // Update log
         log.info("Scheduled task completed, new articles were successfully sent to subscribers");
+
+        // Increment articles received count in the database for each user who received updates
+        schedulerService.incrementReplyCount(articlesReceived);
     }
 
     /**
@@ -65,11 +69,17 @@ public class Scheduler {
      * Skips sending of the updates to a recipients that failed to receive an update.
      * Log the failed attempt.
      *
-     * @param reply          the reply object to be sent
-     * @param currentTime    the current time of the scheduler
-     * @param failedAttempts a list of user ids that failed to receive the update
+     * @param reply            the reply object to be sent
+     * @param currentTime      the current time of the scheduler
+     * @param failedAttempts   a list of user ids that failed to receive the update
+     * @param articlesReceived a map that stores the user ids and the number of articles received
      */
-    private void processReply(Reply reply, ZonedDateTime currentTime, List<Long> failedAttempts) {
+    private void processReply(
+            Reply reply,
+            ZonedDateTime currentTime,
+            List<Long> failedAttempts,
+            Map<Long, Long> articlesReceived
+    ) {
         // Check if the address is amongst the failed attempt addresses
         if (failedAttempts.contains(reply.getUserId())) {
             // Skip sending update to userId from a failed attempts list
@@ -90,6 +100,22 @@ public class Scheduler {
         schedulerService.updateSubscriptionListLastReadTime(
                 reply.getSubscriptionId(),
                 currentTime
+        );
+
+        // Increment user's articles received count
+        incrementArticlesReceived(articlesReceived, reply.getUserId());
+    }
+
+    /**
+     * A helper method that increments the number of articles received by a user in a map.
+     *
+     * @param map    the map that stores the user ids and the number of articles received
+     * @param userId the user id to be incremented
+     */
+    private void incrementArticlesReceived(Map<Long, Long> map, Long userId) {
+        map.compute(
+                userId,
+                (key, value) -> (value == null) ? 1 : ++value
         );
     }
 

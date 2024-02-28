@@ -1,7 +1,6 @@
 package com.uvarchev.javatelebot.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public class Reply {

@@ -1,8 +1,8 @@
 package com.uvarchev.javatelebot.service;
 
-import com.uvarchev.javatelebot.bot.command.SubscribeCommand;
-import com.uvarchev.javatelebot.bot.command.SubscriptionsCommand;
-import com.uvarchev.javatelebot.bot.command.UnsubscribeCommand;
+import com.uvarchev.javatelebot.command.SubscribeCommand;
+import com.uvarchev.javatelebot.command.SubscriptionsCommand;
+import com.uvarchev.javatelebot.command.UnsubscribeCommand;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.CommandType;

@@ -21,9 +21,6 @@ public class User {
     @Column(name = "id", unique = true, nullable = false, updatable = false)
     private Long telegramId; // Use Telegram ID as user's primary identifier
 
-    @Column(name = "user_is_active", columnDefinition = "TINYINT(1)", nullable = false)
-    private boolean isActive; // TODO for removal
-
     @Enumerated(EnumType.STRING)
     @Column(name = "user_role", columnDefinition = "VARCHAR(255) DEFAULT 'UNAUTHORISED'")
     private UserRole userRole;
@@ -43,7 +40,6 @@ public class User {
 
     public User(Long telegramId) {
         this.telegramId = telegramId;
-        this.isActive = true;
         this.userRole = UserRole.USER;
     }
 
@@ -70,6 +66,10 @@ public class User {
         return getSubscriptions().stream()
                 .filter(Subscription::isActive)
                 .collect(Collectors.toSet());
+    }
+
+    public void incrementArticlesReceivedByValue(long articlesReceived) {
+        this.articlesReceived += articlesReceived;
     }
 
     @Override

@@ -1,8 +1,7 @@
 package com.uvarchev.javatelebot.service;
 
-import com.uvarchev.javatelebot.bot.command.StartCommand;
-import com.uvarchev.javatelebot.bot.command.StatisticsCommand;
-import com.uvarchev.javatelebot.bot.command.StopCommand;
+import com.uvarchev.javatelebot.command.StartCommand;
+import com.uvarchev.javatelebot.command.StopCommand;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.NewsProvider;
 import com.uvarchev.javatelebot.enums.UserRole;

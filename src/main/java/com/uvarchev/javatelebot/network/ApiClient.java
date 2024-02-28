@@ -8,14 +8,12 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Stack;
 
 public class ApiClient {
 
     // Spaceflight News API
     private final String baseUrl = "https://api.spaceflightnewsapi.net";
-
     private String newsProviders;
     private String oldestRead;
 
