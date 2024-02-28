@@ -9,19 +9,22 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Stack;
 
 public class ApiClient {
 
     // Spaceflight News API
     private final String baseUrl = "https://api.spaceflightnewsapi.net";
 
+    private String newsProviders;
     private String oldestRead;
 
-    public ApiClient(String oldestRead) {
+    public ApiClient(String newsProviders, String oldestRead) {
+        this.newsProviders = newsProviders;
         this.oldestRead = oldestRead;
     }
 
-    public List<News> getNews() {
+    public Stack<News> getNews() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())
@@ -29,10 +32,9 @@ public class ApiClient {
 
         SpaceNewsService service = retrofit.create(SpaceNewsService.class);
         Call<NewsResults> newsCall = service.getNews(
-                25,
-                "SpaceNews",
-                oldestRead,
-                "published_at"
+                50,
+                newsProviders,
+                oldestRead
         );
 
         try {

@@ -1,107 +1,167 @@
 package com.uvarchev.javatelebot.service;
 
+import com.uvarchev.javatelebot.dto.News;
+import com.uvarchev.javatelebot.dto.Reply;
+import com.uvarchev.javatelebot.entity.Subscription;
+import com.uvarchev.javatelebot.enums.NewsProvider;
+import com.uvarchev.javatelebot.network.ApiClient;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
-import com.uvarchev.javatelebot.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * A service class that handles the scheduling and distribution of news updates to subscribers.
+ */
 @Service
+@Transactional
 public class SchedulerService {
 
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
     private SubscriptionRepository subscriptionRepository;
 
+    /**
+     * Fetches the scheduled news updates for all active subscriptions and returns them as a queue of replies.
+     *
+     * @return a queue of replies containing the news updates, or null if there are no active subscriptions
+     */
+    public Queue<Reply> fetchScheduledNewsUpdate() {
+        // Collect list of all active subscriptions
+        List<Subscription> subscriptions = subscriptionRepository.findAllActiveSubscriptions();
 
+        // Check if the list of subscriptions is empty
+        if (subscriptions.isEmpty()) {
+            // Return null to indicate that the list of subscriptions is empty
+            return null;
+        }
+
+        // Save current time
+        final ZonedDateTime currentTime = ZonedDateTime.now();
+
+        // Get the latest article delivered time among active subscriptions or current time
+        ZonedDateTime oldestRead = Optional.ofNullable(
+                        subscriptionRepository.getOldestReadTimeFromActiveSubscriptions()
+                )
+                .orElse(currentTime);
+
+        // From subscriptions collect all distinct news providers separated by commas
+        String newsProviders = getDistinctNewsProvidersFromActiveSubscriptions(subscriptions);
+
+        // Create an API client
+        ApiClient client = new ApiClient(
+                newsProviders,
+                oldestRead.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX"))
+        );
+
+        // Download news in reverse date order
+        Stack<News> newsList = client.getNews();
+
+        // Create a Queue of Reply objects for News distribution
+        Queue<Reply> replies = new LinkedList<>();
+
+        // Process each article in the received newsList
+        while (!newsList.isEmpty()) {
+            // Prepare article for the corresponding subscriber
+            distributeArticles(newsList.pop(), subscriptions, replies);
+        }
+
+        return replies;
+    }
+
+    /**
+     * Gets the distinct news providers from a list of active subscriptions
+     * and returns them as a comma-separated string.
+     *
+     * @param subscriptions a list of active subscriptions
+     * @return a string of distinct news providers
+     */
+    private String getDistinctNewsProvidersFromActiveSubscriptions(List<Subscription> subscriptions) {
+        return subscriptions.stream()
+                .map(Subscription::getProvider)
+                .distinct()
+                .map(NewsProvider::getApiName)
+                .collect(Collectors.joining(", "));
+    }
+
+    /**
+     * Distributes an article to the relevant subscriptions and adds the replies to a queue.
+     *
+     * @param article       a news article
+     * @param subscriptions a list of active subscriptions
+     * @param replies       a queue of replies
+     */
+    private void distributeArticles(News article, List<Subscription> subscriptions, Queue<Reply> replies) {
+        // Filter article through each active subscription and offer Reply to the replies
+        subscriptions.stream()
+                .filter(subscription ->
+                        matchesProvider(subscription, article) &&
+                                isPublishedAfterRead(subscription, article)
+                )
+                .forEach(subscription -> createAndOfferReply(subscription, article, replies));
+    }
+
+    /**
+     * Checks if a subscription matches the provider of an article.
+     *
+     * @param subscription a subscription
+     * @param article      a news article
+     * @return true if the subscription and the article have the same provider, false otherwise
+     */
+    private boolean matchesProvider(Subscription subscription, News article) {
+        // Providers for both article and subscription are matching
+        return subscription.getProvider().getApiName()
+                .equals(article.getProvider());
+    }
+
+    /**
+     * Checks if an article is published after the last read time of a subscription.
+     *
+     * @param subscription a subscription
+     * @param article      a news article
+     * @return true if the article is published after the last read time of the subscription, false otherwise
+     */
+    private boolean isPublishedAfterRead(Subscription subscription, News article) {
+        // Articles published time is after subscription's last read time
+        ZonedDateTime publishedAt = ZonedDateTime.parse(article.getPublishedAt());
+        ZonedDateTime lastRead = subscription.getLastReadId();
+        return publishedAt.isAfter(lastRead);
+    }
+
+    /**
+     * Creates a reply object based on a subscription and an article and adds it to a queue of replies.
+     *
+     * @param subscription a subscription
+     * @param article      a news article
+     * @param replies      a queue of replies
+     */
+    private void createAndOfferReply(Subscription subscription, News article, Queue<Reply> replies) {
+        // Create Reply abject based on Subscription and add to the queue of replies
+        replies.offer(new Reply(
+                subscription.getUser().getTelegramId(),
+                article.toString(),
+                subscription.getId()
+        ));
+    }
+
+    /**
+     * Updates the last read time of a subscription by its id.
+     *
+     * @param subscriptionId the id of the subscription
+     * @param currentTime    the current time
+     */
+    public void updateSubscriptionListLastReadTime(
+            Long subscriptionId,
+            ZonedDateTime currentTime
+    ) {
+        // Update last read time by SubscriptionId
+        subscriptionRepository.updateLastReadIdBySubscriptionId(
+                subscriptionId, currentTime
+        );
+    }
 
 }
-
-//    @Autowired
-//    private SubscriptionRepository subscriptionRepository;
-//
-//    private final Telebot telebot;
-//
-//    @Autowired
-//    public Scheduler(Telebot telebot) {
-//        this.telebot = telebot;
-//    }
-//
-//    // Scheduled hourly task
-//    @Scheduled(cron = "0 0 * * * *")
-//    @Transactional
-//    protected void sendHourlyUpdates() {
-//        // Collect all active subscriptions
-//        List<Subscription> subscriptions = subscriptionRepository.findAllActiveSubscriptions();
-//        if (subscriptions.isEmpty()) {
-//            log.info(
-//                    "Scheduled task completed, no active subscriptions for any active user found"
-//            );
-//            return;
-//        }
-//
-//        ZonedDateTime oldestRead = subscriptions.stream()
-//                .map(Subscription::getLastReadId)
-//                .min(ChronoZonedDateTime::compareTo)
-//                .orElse(ZonedDateTime.now());
-//
-//        ApiClient client = new ApiClient(
-//                oldestRead.format(
-//                        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssX")
-//                )
-//        );
-//        List<News> newsList = client.getNews();
-//
-//        // If no news was returned
-//        if (newsList.isEmpty()) {
-//            log.info(
-//                    "Scheduled task completed, no new articles were found"
-//            );
-//
-////            // Update last read time
-////            subscriptions.forEach(
-////                    sub -> {
-////                        sub.setLastReadId(ZonedDateTime.now());
-////                        subscriptionRepository.save(sub);
-////                    }
-////            );
-//
-//            return;
-//        }
-//
-//        subscriptions.forEach(
-//                sub -> {
-//                    // Create individual lists for each subscriber
-//                    List<News> individualList = newsList.stream()
-//                            .filter(
-//                                    news -> ZonedDateTime.parse(news.getPublishedAt())
-//                                            .isAfter(
-//                                                    sub.getLastReadId()
-//                                            )
-//                            )
-//                            .toList();
-//
-////                    // Send message to each user
-////                    individualList
-////                            .forEach(
-////                                    news -> telebot.sendMessage(
-////                                            sub.getUser().getTelegramId().toString(),
-////                                            news.toString(),
-////                                            0
-////                                    )
-////                            );
-//
-//                    // If user has blocked the bot, he will become inactive in sendMessage() method,
-//                    // this is being checked here
-////                    if (sub.getUser().isActive()) {
-////                        // If User is still active - update his subscription's last read time
-////                        sub.setLastReadId(ZonedDateTime.now());
-////                        subscriptionRepository.save(sub);
-////                    }
-//                }
-//        );
-//
-//        log.info(
-//                "Scheduled task completed, new articles were successfully sent to subscribers"
-//        );
-//    }

@@ -35,7 +35,7 @@ public class Telebot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMessage(Reply reply) {
+    public void sendMessage(Reply reply) throws RuntimeException {
         SendMessage sendMessage = new SendMessage(
                 reply.getUserId().toString(),
                 reply.getMessageBody()
@@ -53,6 +53,7 @@ public class Telebot extends TelegramLongPollingBot {
 //                userRepository.deactivateById(
 //                        reply.getUserId()
 //                );
+                throw new RuntimeException(e);
             }
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);

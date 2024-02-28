@@ -10,7 +10,6 @@ public interface SpaceNewsService {
     Call<NewsResults> getNews(
             @Query("limit") int limit,
             @Query("news_site") String newsSite,
-            @Query("published_at_gt") String publishedAtGt,
-            @Query("ordering") String ordering
+            @Query("published_at_gt") String publishedAtGt
     );
 }

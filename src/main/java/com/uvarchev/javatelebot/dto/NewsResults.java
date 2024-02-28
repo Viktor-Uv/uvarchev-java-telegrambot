@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
+import java.util.Stack;
 
 @Setter
 @Getter
 @NoArgsConstructor
 public class NewsResults {
     @SerializedName("results")
-    private List<News> results;
+    private Stack<News> results;
 }

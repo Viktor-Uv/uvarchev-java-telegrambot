@@ -24,6 +24,9 @@ public class News {
     @SerializedName("published_at")
     private String publishedAt;
 
+    @SerializedName("news_site")
+    private String provider;
+
     @Override
     public String toString() {
         return title + "\n\n" +

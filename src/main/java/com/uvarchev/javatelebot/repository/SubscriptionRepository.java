@@ -36,12 +36,14 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     )
     int countAllByActiveIs(boolean activeStatus);
 
+    /**
+     * Returns a list of subscriptions that are currently active.
+     *
+     * @return a list of active Subscription objects
+     */
     @Query(
             value = "SELECT s " +
                     " FROM Subscription s " +
-                    " INNER JOIN User u " +
-                    " ON s.user.telegramId = u.telegramId " +
-                    " AND u.isActive = true " +
                     " WHERE s.isActive = true"
     )
     List<Subscription> findAllActiveSubscriptions();
@@ -72,10 +74,43 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     )
     List<NewsProvider> findDistinctTopProviders();
 
+    /**
+     * Returns the most recent date and time when any subscription was read.
+     *
+     * @return a ZonedDateTime object representing the most recent read time
+     */
     @Query(
             value = "SELECT max(s.lastReadId) " +
                     " FROM Subscription s "
     )
     ZonedDateTime getMostRecentReadTime();
+
+    /**
+     * Returns the oldest date and time when any active subscription was read.
+     *
+     * @return a ZonedDateTime object representing the oldest read time
+     */
+    @Query(
+            value = "SELECT min(s.lastReadId) " +
+                    " FROM Subscription s " +
+                    " WHERE s.isActive "
+    )
+    ZonedDateTime getOldestReadTimeFromActiveSubscriptions();
+
+    /**
+     * Updates the last read id of the subscription by the given subscription id.
+     *
+     * @param subscriptionId a Long value representing the id of the subscription to be updated
+     * @param lastReadId     a ZonedDateTime object representing the date and time of the last read
+     * @return an int value indicating the number of rows affected by the update
+     */
+    @Transactional
+    @Modifying
+    @Query(
+            value = "UPDATE Subscription s " +
+                    "SET s.lastReadId = :lastReadId " +
+                    "WHERE s.id = :subscriptionId "
+    )
+    int updateLastReadIdBySubscriptionId(Long subscriptionId, ZonedDateTime lastReadId);
 
 }
