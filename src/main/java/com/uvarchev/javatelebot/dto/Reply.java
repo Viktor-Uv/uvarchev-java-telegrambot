@@ -20,4 +20,9 @@ public class Reply {
         this.messageBody = messageBody;
         this.subscriptionId = subscriptionId;
     }
+
+    public Reply(Long userId, String messageBody) {
+        this.userId = userId;
+        this.messageBody = messageBody;
+    }
 }

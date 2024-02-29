@@ -2,6 +2,7 @@ package com.uvarchev.javatelebot.periodic;
 
 import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.dto.Reply;
+import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,6 +65,26 @@ public class Scheduler {
         schedulerService.incrementReplyCount(articlesReceived);
     }
 
+    @Scheduled(cron = "5 0 8 * * *")
+    private void sendDailyStatistics() {
+        // Get daily statistics in the form of Reply
+        Queue<Reply> replies = schedulerService.getDailyStatistics();
+
+        if (replies.isEmpty()) {
+            // If an empty list received - log and exit
+            log.info("Daily Statistics. No administrators found to send messages to");
+            return;
+        }
+
+        // For each reply object
+        while (!replies.isEmpty()) {
+            // Try to send a reply via Telegram
+            processReply(replies.poll());
+        }
+
+        log.info("Daily Statistics was sent to all administrators");
+    }
+
     /**
      * Processes a single reply object and sends it to the user via Telegram.
      * Skips sending of the updates to a recipients that failed to receive an update.
@@ -104,6 +125,20 @@ public class Scheduler {
 
         // Increment user's articles received count
         incrementArticlesReceived(articlesReceived, reply.getUserId());
+    }
+
+    /**
+     * A helper method that tries to send a reply object to the user via Telegram and logs any failure.
+     *
+     * @param reply the reply object to be sent
+     */
+    private void processReply(Reply reply) {
+        // Try to send a message to the user
+        try {
+            telebot.sendMessage(reply);
+        } catch (RuntimeException ignored) {
+            log.warn("Attempt sending update to userId " + reply.getUserId() + " has failed");
+        }
     }
 
     /**

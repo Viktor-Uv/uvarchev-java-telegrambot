@@ -8,6 +8,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
@@ -47,5 +49,13 @@ public interface UserRepository extends CrudRepository<User, Long> {
                     " FROM User u "
     )
     long getTotalOfArticlesReceived();
+
+    /**
+     * A method that returns a list of users that have a specific user role.
+     *
+     * @param userRole the user role to be matched
+     * @return a list of users that have the user role
+     */
+    List<User> getUsersByUserRole(UserRole userRole);
 
 }

@@ -5,6 +5,7 @@ import com.uvarchev.javatelebot.dto.Reply;
 import com.uvarchev.javatelebot.entity.Subscription;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.NewsProvider;
+import com.uvarchev.javatelebot.enums.UserRole;
 import com.uvarchev.javatelebot.network.ApiClient;
 import com.uvarchev.javatelebot.repository.SubscriptionRepository;
 import com.uvarchev.javatelebot.repository.UserRepository;
@@ -16,7 +17,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A service class that handles the scheduling and distribution of news updates to subscribers.
@@ -29,6 +29,8 @@ public class SchedulerService {
     private SubscriptionRepository subscriptionRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserService userService;
 
     /**
      * Fetches the scheduled news updates for all active subscriptions and returns them as a queue of replies.
@@ -76,6 +78,29 @@ public class SchedulerService {
         }
 
         return replies;
+    }
+
+    /**
+     * A method that returns a queue of Reply objects with the daily statistics message for all admin users.
+     *
+     * @return a queue of Reply objects or an empty queue if no admin users are found
+     */
+    public Queue<Reply> getDailyStatistics() {
+        // Get a list administrators
+        List<User> admins = userRepository.getUsersByUserRole(UserRole.ADMIN);
+
+        // Check if no administrators were found
+        if (admins == null) {
+            return new LinkedList<>();
+        }
+
+        // Get a statistics message
+        String statisticsMessage = userService.getAdminStatistics();
+
+        // Create a list of Replies from a list of admins and return
+        return admins.stream()
+                .map(admin -> new Reply(admin.getTelegramId(), statisticsMessage))
+                .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -192,5 +217,15 @@ public class SchedulerService {
 
         // Save updated user list to db
         userRepository.saveAll(userList);
+    }
+
+    /**
+     * A method that returns a list of users that have the admin role.
+     * Returns null if there are no Administrators
+     *
+     * @return a list of admin users, or null
+     */
+    private List<User> getAdministrators() {
+        return userRepository.getUsersByUserRole(UserRole.ADMIN);
     }
 }
