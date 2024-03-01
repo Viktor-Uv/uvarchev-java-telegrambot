@@ -27,6 +27,11 @@ public class Telebot extends TelegramLongPollingBot {
         this.config = config;
     }
 
+    /**
+     * Receives an update from Telegram and sends a reply if the update has a message with text.
+     *
+     * @param update The update object from Telegram.
+     */
     @Override
     public void onUpdateReceived(Update update) {
         // Check if the update has a message and the message has text

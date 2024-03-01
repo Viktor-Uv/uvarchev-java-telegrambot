@@ -14,6 +14,12 @@ import java.util.List;
 @Repository
 public interface SubscriptionRepository extends CrudRepository<Subscription, Long> {
 
+    /**
+     * Deactivates all the subscriptions of a user by setting the isActive field to false in the database.
+     *
+     * @param userId The user id of the user whose subscriptions are to be deactivated.
+     * @return The number of subscriptions that were deactivated.
+     */
     @Transactional
     @Modifying
     @Query(

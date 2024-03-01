@@ -17,6 +17,9 @@ public class CommandProcessor {
     private String userName;
 
     /**
+     * Processes an update from Telegram and returns a reply object.
+     *
+     * @param update The update object from Telegram.
      * @return Reply object with address, reply reference and reply text
      */
     public Reply processUpdate(Update update) {
@@ -32,8 +35,10 @@ public class CommandProcessor {
     }
 
     /**
-     * @param msgText text string, sent by the User
-     * @return String (reply text)
+     * Generates a reply text based on the command extracted from the user's message text.
+     *
+     * @param msgText The text string sent by the user.
+     * @return The reply text to be sent to the user.
      */
     private String generateReply(String msgText) {
         // Extract command

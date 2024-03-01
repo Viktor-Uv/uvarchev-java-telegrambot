@@ -227,13 +227,4 @@ public class SchedulerService {
         userRepository.saveAll(userList);
     }
 
-    /**
-     * A method that returns a list of users that have the admin role.
-     * Returns null if there are no Administrators
-     *
-     * @return a list of admin users, or null
-     */
-    private List<User> getAdministrators() {
-        return userRepository.getUsersByUserRole(UserRole.ADMIN);
-    }
 }
