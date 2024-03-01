@@ -12,10 +12,8 @@ import java.util.Stack;
 
 public class ApiClient {
 
-    // Spaceflight News API
-    private final String baseUrl = "https://api.spaceflightnewsapi.net";
-    private String newsProviders;
-    private String oldestRead;
+    private final String newsProviders;
+    private final String oldestRead;
 
     public ApiClient(String newsProviders, String oldestRead) {
         this.newsProviders = newsProviders;
@@ -23,6 +21,8 @@ public class ApiClient {
     }
 
     public Stack<News> getNews() {
+        // Spaceflight News API
+        String baseUrl = "https://api.spaceflightnewsapi.net";
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create())

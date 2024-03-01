@@ -2,7 +2,6 @@ package com.uvarchev.javatelebot.periodic;
 
 import com.uvarchev.javatelebot.bot.Telebot;
 import com.uvarchev.javatelebot.dto.Reply;
-import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.service.SchedulerService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,22 +46,27 @@ public class Scheduler {
         final ZonedDateTime currentTime = ZonedDateTime.now();
 
         // Keep track of failed attempt addresses
-        List<Long> failedAttempts = new ArrayList<>();
+        List<Long> failedAttempts = new LinkedList<>();
 
         // Keep track of how many articles did each user receive during one session
-        Map<Long, Long> articlesReceived = new HashMap<>();
+        Map<Long, Long> articlesReceivedCount = new HashMap<>();
+
+        // Save successfully sent subscription ids
+        Set<Long> receivedSubscriptionIds = new HashSet<>();
 
         // For each reply object
         while (!replyQueue.isEmpty()) {
             // Try to send reply via Telegram and update subscription's last read id
-            processReply(replyQueue.poll(), currentTime, failedAttempts, articlesReceived);
+            processReply(replyQueue.poll(), failedAttempts, articlesReceivedCount, receivedSubscriptionIds);
         }
+
+        // Increment articles received count in the database for each user who received updates
+        schedulerService.incrementReplyCount(articlesReceivedCount);
+        // Update LastReadId for each subscription sent
+        schedulerService.updateSubscriptionListLastReadTime(receivedSubscriptionIds, currentTime);
 
         // Update log
         log.info("Scheduled task completed, new articles were successfully sent to subscribers");
-
-        // Increment articles received count in the database for each user who received updates
-        schedulerService.incrementReplyCount(articlesReceived);
     }
 
     @Scheduled(cron = "5 0 8 * * *")
@@ -78,8 +82,8 @@ public class Scheduler {
 
         // For each reply object
         while (!replies.isEmpty()) {
-            // Try to send a reply via Telegram
-            processReply(replies.poll());
+            // Send a reply via Telegram
+            telebot.sendMessage(replies.poll());
         }
 
         log.info("Daily Statistics was sent to all administrators");
@@ -88,18 +92,17 @@ public class Scheduler {
     /**
      * Processes a single reply object and sends it to the user via Telegram.
      * Skips sending of the updates to a recipients that failed to receive an update.
-     * Log the failed attempt.
      *
-     * @param reply            the reply object to be sent
-     * @param currentTime      the current time of the scheduler
-     * @param failedAttempts   a list of user ids that failed to receive the update
-     * @param articlesReceived a map that stores the user ids and the number of articles received
+     * @param reply                   The reply object containing the user id, message, and subscription id.
+     * @param failedAttempts          The list of user ids that failed to receive a message.
+     * @param articlesReceivedCount   The map of user ids and the number of articles they received.
+     * @param receivedSubscriptionIds The list of subscription ids that were successfully sent to the users.
      */
     private void processReply(
             Reply reply,
-            ZonedDateTime currentTime,
             List<Long> failedAttempts,
-            Map<Long, Long> articlesReceived
+            Map<Long, Long> articlesReceivedCount,
+            Set<Long> receivedSubscriptionIds
     ) {
         // Check if the address is amongst the failed attempt addresses
         if (failedAttempts.contains(reply.getUserId())) {
@@ -107,37 +110,15 @@ public class Scheduler {
             return;
         }
 
-        // Try to send a message to the user
-        try {
-            telebot.sendMessage(reply);
-        } catch (RuntimeException e) {
+        // Send a message to the user and check if it was successfully sent
+        if (telebot.sendMessage(reply)) {
+            // Increment user's articles received count
+            incrementArticlesReceived(articlesReceivedCount, reply.getUserId());
+            // Save subscription id
+            receivedSubscriptionIds.add(reply.getSubscriptionId());
+        } else {
             // Stop sending next updates during this session to this user by remembering its userId
             failedAttempts.add(reply.getUserId());
-            log.warn("Attempt sending update to userId " + reply.getUserId() + " has failed");
-            return;
-        }
-
-        // Upon success - update last read time for the individual subscription
-        schedulerService.updateSubscriptionListLastReadTime(
-                reply.getSubscriptionId(),
-                currentTime
-        );
-
-        // Increment user's articles received count
-        incrementArticlesReceived(articlesReceived, reply.getUserId());
-    }
-
-    /**
-     * A helper method that tries to send a reply object to the user via Telegram and logs any failure.
-     *
-     * @param reply the reply object to be sent
-     */
-    private void processReply(Reply reply) {
-        // Try to send a message to the user
-        try {
-            telebot.sendMessage(reply);
-        } catch (RuntimeException ignored) {
-            log.warn("Attempt sending update to userId " + reply.getUserId() + " has failed");
         }
     }
 

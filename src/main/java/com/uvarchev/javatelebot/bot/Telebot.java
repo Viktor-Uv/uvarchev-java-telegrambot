@@ -2,6 +2,8 @@ package com.uvarchev.javatelebot.bot;
 
 import com.uvarchev.javatelebot.command.CommandProcessor;
 import com.uvarchev.javatelebot.dto.Reply;
+import com.uvarchev.javatelebot.service.ExceptionService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -10,11 +12,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiRequestException;
 
+@Slf4j
 @Controller
 public class Telebot extends TelegramLongPollingBot {
 
     @Autowired
     private CommandProcessor commandProcessor;
+    @Autowired
+    private ExceptionService exceptionService;
 
     private final TelebotConfig config;
 
@@ -34,7 +39,16 @@ public class Telebot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMessage(Reply reply) throws RuntimeException {
+    /**
+     * A method
+     * that sends a reply object to the user via Telegram and returns a boolean
+     * indicating the success or failure of the operation.
+     * If sending has failed - process the error in Exception Service.
+     *
+     * @param reply the reply object to be sent
+     * @return true if the message was sent successfully, false otherwise
+     */
+    public boolean sendMessage(Reply reply) {
         SendMessage sendMessage = new SendMessage(
                 reply.getUserId().toString(),
                 reply.getMessageBody()
@@ -45,18 +59,17 @@ public class Telebot extends TelegramLongPollingBot {
 
         try {
             execute(sendMessage);
+            return true;
         } catch (TelegramApiRequestException e) {
-            // Handle a case when user has stopped & blocked the bot
-            if (e.getErrorCode().equals(403)) {
-                // Set user inactive
-//                userRepository.deactivateById(
-//                        reply.getUserId()
-//                );
-                throw new RuntimeException(e);
-            }
+            exceptionService.handleTelegramApiRequestException(
+                    e.getErrorCode(), e.getApiResponse(), reply.getUserId()
+            );
         } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
+            log.warn(
+                    "Failed to send message to id " + reply.getUserId() + ". " + e.getMessage()
+            );
         }
+        return false;
     }
 
     @Override

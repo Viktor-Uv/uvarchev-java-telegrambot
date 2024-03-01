@@ -179,19 +179,27 @@ public class SchedulerService {
     }
 
     /**
-     * Updates the last read time of a subscription by its id.
+     * Updates the last read time for each subscription stored in a list
+     * and saves the updated subscriptions to the database.
      *
-     * @param subscriptionId the id of the subscription
-     * @param currentTime    the current time
+     * @param ids         The list of subscription ids to be updated.
+     * @param currentTime The current time of the scheduler.
      */
     public void updateSubscriptionListLastReadTime(
-            Long subscriptionId,
+            Set<Long> ids,
             ZonedDateTime currentTime
     ) {
-        // Update last read time by SubscriptionId
-        subscriptionRepository.updateLastReadIdBySubscriptionId(
-                subscriptionId, currentTime
-        );
+        // Get a list of subscriptions from db
+        Iterable<Subscription> subscriptionList = subscriptionRepository.findAllById(ids);
+
+        // For each subscription in a subscription list
+        for (Subscription subscription : subscriptionList) {
+            // Update LastReadId
+            subscription.setLastReadId(currentTime);
+        }
+
+        // Save updated subscription list to db
+        subscriptionRepository.saveAll(subscriptionList);
     }
 
     /**

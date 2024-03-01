@@ -2,6 +2,7 @@ package com.uvarchev.javatelebot.service;
 
 import com.uvarchev.javatelebot.command.StartCommand;
 import com.uvarchev.javatelebot.command.StopCommand;
+import com.uvarchev.javatelebot.command.SubscriptionsCommand;
 import com.uvarchev.javatelebot.entity.User;
 import com.uvarchev.javatelebot.enums.NewsProvider;
 import com.uvarchev.javatelebot.enums.UserRole;
@@ -21,6 +22,8 @@ public class UserService {
     private UserRepository userRepository;
     @Autowired
     private SubscriptionRepository subscriptionRepository;
+    @Autowired
+    private SubscriptionService subscriptionService;
 
     /**
      * Activates a user by checking if they already exist in the database or creating a new one if not.
@@ -48,6 +51,12 @@ public class UserService {
             reply += ", nice to meet you!";
         }
 
+        // Add a list of active and available subscriptions to a reply
+        reply += "\n" + subscriptionService.listSubscriptions(
+                new SubscriptionsCommand(command.getUserName(), command.getUserId()),
+                user
+        );
+
         // Save user and return reply
         userRepository.save(user);
         return reply;
@@ -60,14 +69,11 @@ public class UserService {
      * @return a string containing a farewell message to the user
      */
     public String deactivateUser(StopCommand command) {
-        // Lower the UserRole to UNAUTHORISED
-        userRepository.deactivateUserByUserId(command.getUserId());
-
-        // Deactivate all subscriptions of the leaving user
-        subscriptionRepository.deactivateAllUserSubscriptionsByUserId(command.getUserId());
+        deactivateUserAndItsSubscriptions(command.getUserId());
 
         // Return composed reply
-        return "Updates are stopped. Bye, " + command.getUserName() + ", till next time!";
+        return "Any active subscriptions were deactivated. Bye, " +
+                command.getUserName() + ", till next time!";
     }
 
     /**
@@ -103,6 +109,19 @@ public class UserService {
                 topProviders,
                 lastUpdateTime
         );
+    }
+
+    /**
+     * A method that deactivates a user and all its subscriptions by the user id.
+     *
+     * @param userId the user id of the user to be deactivated
+     */
+    public void deactivateUserAndItsSubscriptions(long userId) {
+        // Lower the UserRole to UNAUTHORISED
+        userRepository.deactivateUserByUserId(userId);
+
+        // Deactivate all subscriptions of the leaving user
+        subscriptionRepository.deactivateAllUserSubscriptionsByUserId(userId);
     }
 
     /**

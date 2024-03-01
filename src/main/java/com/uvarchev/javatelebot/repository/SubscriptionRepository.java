@@ -97,20 +97,4 @@ public interface SubscriptionRepository extends CrudRepository<Subscription, Lon
     )
     ZonedDateTime getOldestReadTimeFromActiveSubscriptions();
 
-    /**
-     * Updates the last read id of the subscription by the given subscription id.
-     *
-     * @param subscriptionId a Long value representing the id of the subscription to be updated
-     * @param lastReadId     a ZonedDateTime object representing the date and time of the last read
-     * @return an int value indicating the number of rows affected by the update
-     */
-    @Transactional
-    @Modifying
-    @Query(
-            value = "UPDATE Subscription s " +
-                    "SET s.lastReadId = :lastReadId " +
-                    "WHERE s.id = :subscriptionId "
-    )
-    int updateLastReadIdBySubscriptionId(Long subscriptionId, ZonedDateTime lastReadId);
-
 }

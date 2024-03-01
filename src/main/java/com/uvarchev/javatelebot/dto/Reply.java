@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class Reply {
-    private Long userId;
+    private final Long userId;
     private int msgId;
-    private String messageBody;
+    private final String messageBody;
     private Long subscriptionId;
 
     public Reply(Long userId, int msgId, String messageBody) {
